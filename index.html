@@ -529,7 +529,9 @@ function storyPush(d){ST.blocks=(d.blocks||[]).map(function(b){if(b.k!=='btn')re
    if(hit&&hit!==G.loc){G.loc=hit;var m0='前往'+LOC[hit];if(ST.evs.indexOf(m0)<0)ST.evs.push(m0)}}
   G.ls=d.id;persist()}
  if(TAB==='story'){var v=$('view'),keep=v.scrollTop;render();v.scrollTop=keep}else{tabDot('story');render()}}
+var DESC=/^(我)?(要|想|準備|打算|現在就|這就|先|直接)*(就)?(下|進入|進|走進|走下)(到|去|入)?(迷宮|線之階|地下)(去|了)?[。！!]?$/;
 function storySay(text,free){text=(text||'').trim();if(!text)return;if(ST.busy){toast('AI 還在回覆，請稍等');return}
+ if(!G.in&&G.started&&!G.dead&&text.length<=16&&DESC.test(text)){if(G.loc==='guild'&&!G.ending){ACT.enterAsk()}else if(G.ending){toast('迷宮已經停止運作')}else{toast('線之階在王宮・線之館，請先回到那裡')}return}
  if(G.dead){toast('本局已結束');return}if(!G.started){toast('請先啟用手繩');return}if(G.in){toast('迷宮中不能和 AI 對話');return}
  if(!free){G.idle++;if(G.idle>=16&&!BT){G.idle=0;note('迷宮躁動，魔物從線之階溢出，湧向克諾索斯港');startBattle({type:'sf',foes:['根鼠','根鼠','苔蟲'],ctx:'sf',where:'線之階與港口之間',why:'迷宮溢潮'});toast('⚠ 迷宮溢潮！魔物衝出來了');return}}
  ST.evs=[];ST.res='';ST.go=null;ST.busy=true;persist();post({t:'fill',text:text,send:true,keep:true});if(!P){toast('（測試模式）'+text);ST.busy=false}if(TAB==='story')render()}
