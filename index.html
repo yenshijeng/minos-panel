@@ -221,7 +221,7 @@ function tryMove(dx,dy){var nx=G.x+dx,ny=G.y+dy,c=CUR[ny]&&CUR[ny][nx];
  if(c==='D'){if(G.keys>0){G.keys--;G.opened[G.f+':'+nx+','+ny]=1;CUR[ny][nx]='.';say('青銅鑰匙轉動，門開了。')}else say('門鎖住了，需要一把青銅鑰匙。');persist();upd();return}
  var m=featAt(nx,ny,['mon','boss']);if(m){if(m.type==='boss'&&G.f===FL.length-1&&G.pages.length>=5&&!G.ending){PB=m;namePrompt('');return}startBattle({type:m.type,id:m.id,foes:m.foes,ctx:'dg'});return}
  G.x=nx;G.y=ny;tx=G.x+.5;ty=G.y+.5;G.steps++;reveal();
- if(G.steps%12===0&&G.oil>0){G.oil--;if(G.oil===0)say('燈油用盡，四周陷入黑暗。')}
+ if(G.steps%24===0&&G.oil>0){G.oil--;if(G.oil===0)say('燈油用盡，四周陷入黑暗。')}
  if(CUR[G.y][G.x]==='>'&&!G.guard[G.f]&&!FL[G.f].boss)bindFloor();
  var it=featAt(G.x,G.y,['key','chest','page']);if(it){G.taken[G.f+':'+it.id]=1;pickup(it)}
  persist();upd()}
