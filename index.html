@@ -523,6 +523,11 @@ function sbarHtml(){if(BT)return'<div class="mut">戰鬥中：打完後結果會
  return lo+en+'<div class="s-bar"><textarea id="s-in" placeholder="寫下你想做的事、想說的話…（Shift+Enter 送出）">'+esc(STdraft)+'</textarea><button class="btn amb" data-act="storySend"'+(ST.busy?' disabled':'')+'>送出</button></div>'}
 function bindStory(){var t=$('s-in');if(t){t.oninput=function(){STdraft=t.value};t.onkeydown=function(e){if(e.key==='Enter'&&(e.ctrlKey||e.metaKey||e.shiftKey)&&!e.isComposing){e.preventDefault();ACT.storySend()}}}}
 function storyPush(d){ST.blocks=(d.blocks||[]).map(function(b){if(b.k!=='btn')return b;var t=String(b.t||'').split('\n')[0].replace(/[<>]/g,'').trim().slice(0,40),s2=String(b.s||'').trim();if(!s2||s2.length>120||/[<>]|hc-|title=|bg=/.test(s2))s2=t;return{k:'btn',t:t,s:s2}}).filter(function(b){return b.k!=='btn'||b.t});ST.id=d.id;ST.busy=!!d.busy;
+ if(!d.busy&&G.started&&!G.in&&!BT&&G.ls!==d.id){var st0=null;ST.blocks.forEach(function(b){if(!st0&&b.k==='st')st0=b});
+  if(st0){var AL={port:['克諾索斯港','港口'],guild:['線之館'],market:['市集'],smith:['工匠區','舊工坊'],temple:['神殿']},hit=null;
+   String(st0.t).split(/[｜|]/).forEach(function(p){p=p.trim();Object.keys(AL).forEach(function(k){AL[k].forEach(function(a){if(p.indexOf(a)>=0)hit=k})})});
+   if(hit&&hit!==G.loc){G.loc=hit;var m0='前往'+LOC[hit];if(ST.evs.indexOf(m0)<0)ST.evs.push(m0)}}
+  G.ls=d.id;persist()}
  if(TAB==='story'){var v=$('view'),keep=v.scrollTop;render();v.scrollTop=keep}else{tabDot('story');render()}}
 function storySay(text,free){text=(text||'').trim();if(!text)return;if(ST.busy){toast('AI 還在回覆，請稍等');return}
  if(G.dead){toast('本局已結束');return}if(!G.started){toast('請先啟用手繩');return}if(G.in){toast('迷宮中不能和 AI 對話');return}
@@ -689,7 +694,7 @@ if(G.started&&!G.tourDone)showTour();
 if(G.in&&G.ending&&!BT)showEnding(G.ending);
 requestAnimationFrame(frame);
 window.LTP={ingest:ingest,state:function(){return G},ver:VER};
-window.__t={sf:startFloors,nameTry:nameTry,endgo:function(){closeModal();exitDungeon()},modalHtml:function(){return $('mbox').innerHTML},up:upgrade,buy:buy,face:function(t){G.turn=t;turn=t;tang=ang=-Math.PI/2+t*Math.PI/2},put:function(x,y){G.x=x;G.y=y;px=tx=x+.5;py=ty=y+.5},FL:FL,G:function(){return G},cmd:cmd,BT:function(){return BT},enter:enterDungeon,exit:exitDungeon,ef:enterFloor,fd:fd,startBattle:startBattle,fast:function(){window.__fast=1},summary:summary,ingest:ingest,act:act,compact:compact,tail:tailFor,storySay:storySay,sbar:sbarHtml,CUR:function(){return CUR}};
+window.__t={sf:startFloors,nameTry:nameTry,endgo:function(){closeModal();exitDungeon()},modalHtml:function(){return $('mbox').innerHTML},up:upgrade,buy:buy,face:function(t){G.turn=t;turn=t;tang=ang=-Math.PI/2+t*Math.PI/2},put:function(x,y){G.x=x;G.y=y;px=tx=x+.5;py=ty=y+.5},FL:FL,G:function(){return G},cmd:cmd,BT:function(){return BT},enter:enterDungeon,exit:exitDungeon,ef:enterFloor,fd:fd,startBattle:startBattle,fast:function(){window.__fast=1},summary:summary,ingest:ingest,act:act,compact:compact,tail:tailFor,storySay:storySay,sp:storyPush,sbar:sbarHtml,CUR:function(){return CUR}};
 })();
 </script>
 </body>
