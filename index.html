@@ -1,0 +1,696 @@
+<!doctype html>
+<html lang="zh-Hant">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1">
+<title>米諾斯迷宮・線結手繩</title>
+<style>
+:root{color-scheme:dark;--bg:#0b0a08;--bg2:#15110d;--bg3:#201a13;--line:#3a2f24;--tx:#e4d8c0;--mut:#8d8168;--amb:#e0b95a;--red:#c8503a;--grn:#7fbf7a;--teal:#6cc2c0}
+*{box-sizing:border-box;-webkit-tap-highlight-color:transparent}
+html,body{margin:0;height:100%;background:var(--bg);color:var(--tx);font:15px/1.55 -apple-system,"Noto Sans TC","PingFang TC","Microsoft JhengHei",sans-serif}
+button{font:inherit;color:inherit;cursor:pointer}
+#app{display:flex;flex-direction:column;height:100%;max-width:760px;margin:0 auto}
+#top{padding:7px 12px;background:linear-gradient(180deg,#1a140e,#0d0a07);border-bottom:1px solid var(--line);display:flex;gap:10px;align-items:center}
+#top b{color:var(--amb);letter-spacing:.12em;white-space:nowrap}
+.chips{flex:1;display:flex;gap:6px;flex-wrap:wrap;font-size:12px;color:var(--mut)}
+.chip{background:var(--bg3);border:1px solid var(--line);border-radius:10px;padding:1px 8px;white-space:nowrap}
+.chip.hp{color:var(--grn)}.chip.pt{color:var(--amb)}.chip.lo{color:var(--teal)}.chip.bad{color:var(--red)}
+#tabs{display:flex;background:var(--bg2);border-bottom:1px solid var(--line)}
+#tabs button{flex:1;background:none;border:0;border-bottom:2px solid transparent;padding:9px 2px;color:var(--mut);font-size:14px}
+#tabs button.on{color:var(--amb);border-bottom-color:var(--amb)}
+#tabs button.dot::after{content:"●";color:var(--red);font-size:9px;vertical-align:top;margin-left:2px}
+#view{flex:1;overflow:auto;padding:10px 12px 36px}
+#sbar:empty{display:none}#sbar{padding:8px 12px 10px;border-top:1px solid var(--line);background:var(--bg2)}
+h3{margin:12px 0 7px;font-size:15px;color:var(--amb);font-weight:600}h3:first-child{margin-top:2px}
+.card{background:var(--bg2);border:1px solid var(--line);border-radius:10px;padding:9px 12px;margin-bottom:10px}
+.row{display:flex;justify-content:space-between;gap:10px;align-items:center;padding:3px 0}.row span:first-child{color:var(--mut)}
+.mut{color:var(--mut);font-size:13px}
+.btn{background:#1f1913;border:1px solid #4a3b2c;border-radius:8px;padding:8px 12px;min-height:40px;touch-action:manipulation;user-select:none;-webkit-user-select:none}
+.btn:active{background:#4a3b2c}.btn:disabled{opacity:.38;cursor:default}
+.btn.amb{background:#3a2f12;border-color:#8a7232;color:#ffe3a0}.btn.red{background:#3a1c18;border-color:#8a4a40;color:#ffc0b5}
+.btn.wide{width:100%;margin-top:6px}.btns{display:flex;gap:6px;flex-wrap:wrap;margin-top:6px}
+input,textarea,select{width:100%;background:#0c0a07;color:var(--tx);border:1px solid var(--line);border-radius:8px;padding:8px;font:inherit}
+textarea{min-height:70px;resize:vertical}label{display:block;font-size:13px;color:var(--mut);margin:8px 0 3px}
+.bar{height:6px;background:#2a1a14;border-radius:3px;overflow:hidden;margin-top:3px}.bar i{display:block;height:100%;background:var(--grn)}
+.tag{display:inline-block;font-size:11px;padding:0 6px;border-radius:8px;border:1px solid var(--line);color:var(--mut);margin-left:4px}
+.tag.ok{color:var(--grn);border-color:#3e6a46}.tag.bad{color:var(--red);border-color:#7a3d35}.tag.fix{color:var(--amb);border-color:#7a6430}
+.shop-item{display:flex;justify-content:space-between;align-items:center;gap:8px;padding:7px 0;border-top:1px solid var(--line)}.shop-item:first-child{border-top:0}
+.shop-item .nm{flex:1}.shop-item .nm small{display:block;color:var(--mut);font-size:12px}.price{color:var(--amb);white-space:nowrap;font-size:13px;margin-right:4px}
+.log{font-size:13px;color:var(--mut);border-left:2px solid var(--line);padding-left:8px;margin:4px 0}
+.ally{display:flex;gap:10px;align-items:center;padding:6px 0;border-top:1px solid var(--line)}.ally:first-child{border-top:0}
+.av{width:42px;height:42px;border-radius:50%;flex:none;background:#2a2118 center/cover;display:flex;align-items:center;justify-content:center;font-weight:700;color:#fff;border:1px solid #5a4a38;overflow:hidden}.av img{width:100%;height:100%;object-fit:cover}
+/* story */
+.s-pic{margin:0 0 10px;border-radius:10px;overflow:hidden;border:1px solid var(--line);max-height:200px}.s-pic img{display:block;width:100%;height:200px;object-fit:cover;object-position:50% 35%}
+.s-st{font-size:12px;color:#a89878;letter-spacing:.04em;margin:2px 0 10px;padding-bottom:6px;border-bottom:1px solid var(--line)}
+.s-p{color:#cfc4ad;margin:0 0 .75em;line-height:1.8}
+.s-d{color:#f4dfa0;margin:0 0 .75em;padding:2px 0 2px 10px;border-left:3px solid #b99a4a;background:rgba(224,185,90,.06);line-height:1.8}.s-d b{color:#ffe9b0}
+.s-hr{height:1px;background:var(--line);margin:12px 0}
+.s-opts{display:flex;flex-direction:column;gap:6px;margin:10px 0}.s-opts .btn{text-align:left}
+.s-col{margin:8px 0;border:1px solid var(--line);border-radius:8px;background:var(--bg2)}.s-col summary{padding:6px 10px;color:var(--mut);cursor:pointer;font-size:13px}.s-col div{padding:0 10px 8px;font-size:13px;color:#a89c84;white-space:pre-wrap}
+.s-busy{color:var(--amb);font-size:13px;margin:6px 0}.s-ev{font-size:13px;color:var(--teal);border:1px solid #2a4a52;background:rgba(108,194,192,.07);border-radius:8px;padding:5px 10px;margin:6px 0}
+.s-res{white-space:pre-wrap;font-size:13px;color:#a89c84}
+.s-bar{display:flex;gap:8px;align-items:flex-end}.s-bar textarea{flex:1;min-height:56px;max-height:140px;resize:none}.s-bar .btn{min-height:56px;min-width:64px}
+.locs{display:flex;gap:6px;flex-wrap:wrap;margin-bottom:8px}.locs .btn{min-height:34px;padding:4px 10px;font-size:13px}.locs .btn.cur{border-color:var(--amb);color:var(--amb)}
+/* dungeon */
+.vw{position:relative}
+#dv{width:100%;aspect-ratio:8/5;display:block;background:#000;border:2px solid var(--line);border-radius:6px;image-rendering:pixelated}
+#en{position:absolute;left:0;right:0;top:0;bottom:0;display:flex;justify-content:center;align-items:flex-end;gap:6px;padding:6px;pointer-events:none}
+.ec{pointer-events:auto;width:92px;background:rgba(10,8,6,.72);border:1px solid var(--line);border-radius:8px;padding:4px;text-align:center;font-size:12px}.ec.boss{width:150px}
+.ec.sel{border-color:var(--amb);box-shadow:0 0 0 2px rgba(224,185,90,.5);cursor:pointer}.ec.dead{opacity:.25;filter:grayscale(1)}
+.ec img{width:100%;aspect-ratio:1;object-fit:contain;display:block}.ec img.px{image-rendering:pixelated}
+.hb{height:5px;background:#3a1a16;border-radius:3px;overflow:hidden;margin-top:3px}.hb i{display:block;height:100%;background:var(--red)}.pc .hb i{background:var(--grn)}
+.drow{display:flex;gap:8px;margin-top:8px;align-items:stretch}
+#party{flex:1;display:grid;grid-template-columns:1fr 1fr;gap:6px;align-content:start}
+.pc{background:var(--bg2);border:1px solid var(--line);border-radius:6px;padding:5px 8px;font-size:12.5px}.pc b{font-weight:600;display:block}.pc small{color:var(--mut)}.pc.down{opacity:.45}.pc.def{border-color:var(--teal)}
+#dm{width:132px;height:132px;background:#000;border:2px solid var(--line);border-radius:6px;image-rendering:pixelated;flex:none}
+#dstat{margin:8px 0 0;font-size:13px;color:#b9ad92;display:flex;gap:12px;flex-wrap:wrap}#dstat .warn{color:var(--red)}
+.pad,.cmd{display:grid;grid-template-columns:repeat(3,1fr);gap:6px;margin-top:8px}.pad .btn,.cmd .btn{font-size:15px;padding:12px 6px}.pad .wide,.cmd .wide{grid-column:1/4;margin-top:0}
+#dlog{margin-top:8px;background:#100d0a;border:1px solid #2e251c;border-radius:6px;padding:7px 10px;font-size:13px;line-height:1.6;min-height:7em;max-height:11em;overflow:auto}
+#dlog div{color:var(--mut)}#dlog div:first-child{color:#f0e3c4}
+#toast{position:fixed;left:50%;bottom:18px;transform:translateX(-50%);background:#2a2218;border:1px solid #6a5838;padding:8px 14px;border-radius:10px;font-size:14px;opacity:0;pointer-events:none;transition:.25s;max-width:90%;z-index:50}#toast.on{opacity:1}
+#modal{position:fixed;inset:0;background:rgba(0,0,0,.72);display:none;align-items:center;justify-content:center;padding:14px;z-index:40}#modal.on{display:flex}
+#mbox{background:var(--bg2);border:1px solid var(--line);border-radius:12px;padding:14px;max-width:480px;width:100%;max-height:88vh;overflow:auto}
+#mbox h3,#mbox h4{margin:0 0 8px;color:var(--amb)}#mbox .btn{display:block;width:100%;margin-top:6px;text-align:left;padding:10px 12px}#mbox .mut{margin:4px 0}
+.dead{color:var(--red);font-weight:700}
+</style>
+</head>
+<body>
+<div id="app"><div id="top"><b>🧵 手繩</b><div class="chips" id="chips"></div></div><nav id="tabs"></nav><main id="view"></main><div id="sbar"></div></div>
+<div id="toast"></div><div id="modal"><div id="mbox"></div></div>
+<script>
+(function(){
+'use strict';
+var VER='1.0.0',KEY='mn.save.v1';
+var IMG_BASE='img/';   // 圖片資料夾，沒有圖會自動用內建圖形
+var P=(window.parent&&window.parent!==window)?window.parent:null;
+function $(id){return document.getElementById(id)}
+function esc(s){return String(s==null?'':s).replace(/[&<>"']/g,function(c){return{'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]})}
+function ri(a,b){return a+Math.floor(Math.random()*(b-a+1))}
+function rf(a,b){return a+Math.random()*(b-a)}
+function pick(a){return a[Math.floor(Math.random()*a.length)]}
+function clamp(v,a,b){return Math.max(a,Math.min(b,v))}
+function djb(s){var h=5381;for(var i=0;i<s.length;i++)h=((h<<5)+h+s.charCodeAt(i))>>>0;return h}
+
+// ===== 資料 =====
+var LOC={port:'克諾索斯港',guild:'王宮・線之館',market:'市集街',smith:'工匠區・舊工坊',temple:'雙刃斧神殿'};
+var UPMAX=6;function upCost(k,n){return k==='a'?60*(n+1):50*(n+1)}
+var ITEM={potion:{n:'橄欖藥酒',c:25,note:'回復 45 生命'},fire:{n:'火油瓶',c:35,note:'對全體敵人造成 22 傷害'},water:{n:'線之泉水',c:0,note:'救起倒地的人（生命 40%）；只能在迷宮的泉邊取得'},thread:{n:'線團',c:30,note:'在迷宮任何位置使用，立刻被線拉回地面'},oil:{n:'燈油',c:15,note:'補充 6 單位燈油，上限 30'}};
+var ALLY={'盾手':{hp:90,dmg:10},'弓手':{hp:60,dmg:14},'祭司':{hp:60,dmg:6},'工匠':{hp:70,dmg:9}};
+var CORE={'卡莉絲':'盾手','忒翁':'弓手','梅蘿珀':'祭司','奧涅':'工匠'};
+var QNAME=['帕西淮','帕西法厄','帕西法埃'];
+var ENDTXT={king:'依王命擊倒阿斯忒里翁，迷宮停止運作。結局：王命。',name:'在阿斯忒里翁面前叫出了「帕西淮」，它放下了武器，迷宮自己停了下來，阿斯忒里翁沒有死。結局：名字。'};
+var SK={str:{n:'強擊',lv:1,sp:2,t:'foe',d:'單體 1.8 倍傷害'},combo:{n:'連擊',lv:3,sp:2,t:'foe',d:'打兩次，各 0.9 倍傷害'},pierce:{n:'破甲',lv:5,sp:2,t:'foe',d:'單體 1.2 倍傷害，無視防禦'},cheer:{n:'鼓舞',lv:7,sp:3,t:'self',d:'全隊傷害 +25%，持續 3 回合'},heal:{n:'治療',lv:9,sp:3,t:'ally',d:'回復一名隊友 35% 生命'}};
+var SKO=['str','combo','pierce','cheer','heal'];
+var ASK={'盾手':['pierce','str','cheer'],'弓手':['combo','str','pierce'],'祭司':['heal','cheer','str'],'工匠':['pierce','combo','cheer']};
+function learned(){return SKO.filter(function(k){return G.lv>=SK[k].lv}).map(function(k){return SK[k].n})}
+var BOND=['陌生','普通','信任','親密'];
+var PAGES=['代達羅斯手稿・一：「我替王造了一座關住怪物的迷宮，圖紙上每一條路都有盡頭。」','手稿・二：「動工第三年，牆開始自己長。我沒有設計這個。」','手稿・三：「王妃的孩子被送進去那天，迷宮第一次安靜下來，像在吃東西。」','手稿・四：「它要的不是血。它要的是有人一直待在裡面，沿著我的線走不出去。」','手稿・五：「若有人讀到這頁：不要殺死它。去找它在等的那個名字。」'];
+var EN={
+ '根鼠':{hp:14,d:5,xp:3,pts:4,shape:'quad',col:'#8a7a5a',img:'rat'},'苔蟲':{hp:18,d:4,xp:3,pts:4,shape:'blob',col:'#6a9a4a',img:'moss'},'迷途亡者':{hp:26,d:7,xp:5,pts:7,shape:'ghost',col:'#a8b8c0',img:'lost'},'石蝸':{hp:30,d:8,xp:5,pts:8,shape:'blob',col:'#7a8a72',img:'snail'},
+ '石像守衛':{hp:110,d:12,xp:40,pts:60,shape:'giant',col:'#8a8a82',boss:1,img:'statue'},
+ '青銅蟲':{hp:32,d:9,xp:7,pts:10,shape:'bug',col:'#b8863a',img:'beetle'},'迴聲幽影':{hp:28,d:10,xp:7,pts:10,shape:'ghost',col:'#7a6ab0',img:'echo'},'守墓犬':{hp:40,d:12,xp:9,pts:12,shape:'quad',col:'#6a4a38',img:'hound'},
+ '銅輪巨像':{hp:190,d:16,xp:70,pts:110,shape:'giant',col:'#c08a3a',boss:1,img:'colossus'},
+ '骸骨獵手':{hp:50,d:14,xp:12,pts:16,shape:'skel',col:'#d8d0b8',img:'skeleton'},'鏡中影':{hp:45,d:15,xp:12,pts:16,shape:'ghost',col:'#9ad0d8',img:'shade'},'迷宮食者':{hp:70,d:17,xp:16,pts:22,shape:'blob',col:'#8a3a4a',img:'devourer'},
+ '鏡之守':{hp:240,d:18,xp:100,pts:170,shape:'giant',col:'#9ad0e8',boss:1,img:'mirror'},'線偶':{hp:48,d:15,xp:12,pts:17,shape:'human',col:'#c8503a',img:'puppet'},'供品傀儡':{hp:62,d:16,xp:15,pts:21,shape:'human',col:'#b87a52',img:'offering'},'織梭蟲':{hp:44,d:17,xp:14,pts:20,shape:'bug',col:'#d8a04a',img:'shuttle'},
+ '織線者':{hp:300,d:20,xp:130,pts:220,shape:'giant',col:'#c8503a',boss:1,img:'weaver'},
+ '阿斯忒里翁':{hp:420,d:24,xp:200,pts:400,shape:'giant',col:'#6a2a1a',boss:1,img:'asterion'},
+ '碼頭混混':{hp:18,d:6,xp:4,pts:6,shape:'human',col:'#7a6a4a',img:'thug'},'搶燈油的小偷':{hp:14,d:5,xp:3,pts:5,shape:'human',col:'#4a4a5a',img:'thug'}
+};
+function enemyStat(k,f){var t=EN[k]?Object.assign({},EN[k]):null;
+ if(!t){var base=Object.keys(EN).sort(function(a,b){return b.length-a.length}).filter(function(x){return k.indexOf(x)>=0})[0];
+  t=Object.assign({},base?EN[base]:{hp:24,d:7,xp:4,pts:6,shape:'human',col:'#8a6a4a',img:'thug'});if(/變異|巨大|首領|精英/.test(k)){t.hp=Math.round(t.hp*2);t.d=Math.round(t.d*1.4);t.xp*=2;t.pts*=2}}
+ var F=(f&&FL[f])||{},hs=F.hs||1,ds=F.ds||1;if((hs!==1||ds!==1)&&!t.boss){t.hp=Math.round(t.hp*hs);t.d=Math.round(t.d*ds);t.xp=Math.round(t.xp*hs*ds);t.pts=Math.round(t.pts*hs*ds)}return t}
+//#FL-START
+var FL=[null,
+ {n:'第一層・橄欖根廊',size:9,seed:1101,boss:null,mons:['根鼠','苔蟲','迷途亡者'],nM:8,pages:[]},
+ {n:'第二層・苔石迴廊',size:10,seed:2202,boss:null,mons:['苔蟲','迷途亡者','石蝸'],nM:10,pages:[1]},
+ {n:'第三層・石像之廳',size:11,seed:3303,boss:'石像守衛',mons:['石蝸','守墓犬','迴聲幽影'],nM:11,hs:1.25,pages:[2]},
+ {n:'第四層・青銅迴旋廊',size:12,seed:4404,boss:'銅輪巨像',mons:['青銅蟲','迴聲幽影','守墓犬'],nM:12,hs:1.5,pages:[3]},
+ {n:'第五層・骨與鏡之館',size:13,seed:5505,boss:'鏡之守',mons:['骸骨獵手','鏡中影','迷宮食者'],nM:13,hs:1.75,pages:[4]},
+ {n:'第六層・供品之廊',size:14,seed:6606,boss:'織線者',mons:['線偶','供品傀儡','織梭蟲'],nM:14,hs:2,ds:1.25,pages:[5]},
+ {n:'第七層・星之居所',size:10,seed:7707,boss:'阿斯忒里翁',mons:[],nM:0,pages:[]}];
+//#FL-END
+var PAL=[null,
+ {w:[96,108,64],door:[112,72,34],ce:['#030403','#12170c'],fl:['#080a05','#1f2414']},
+ {w:[84,106,90],door:[104,76,40],ce:['#030504','#0f1a14'],fl:['#050806','#17241c']},
+ {w:[140,138,130],door:[110,80,52],ce:['#040404','#18181a'],fl:['#070707','#222020']},
+ {w:[150,112,56],door:[120,80,36],ce:['#050403','#1a1408'],fl:['#0a0805','#2a2012']},
+ {w:[150,170,176],door:[100,86,70],ce:['#040506','#14191c'],fl:['#07080a','#1e2428']},
+ {w:[118,62,66],door:[90,60,44],ce:['#060304','#1c0e10'],fl:['#0a0506','#2a1618']},
+ {w:[76,76,128],door:[96,80,60],ce:['#020208','#0c0c20'],fl:['#04040a','#14142c']}];
+
+//#GEN-START
+function rng(seed){return function(){seed|=0;seed=seed+0x6D2B79F5|0;var t=Math.imul(seed^seed>>>15,1|seed);t=t+Math.imul(t^t>>>7,61|t)^t;return((t^t>>>14)>>>0)/4294967296}}
+function genFloor(f){
+ var cfg=FL[f],c=cfg.size,n=2*c+1,r=rng(cfg.seed),g=[],i,j,t;
+ for(i=0;i<n;i++){g.push([]);for(j=0;j<n;j++)g[i].push('#')}
+ var st=[[1,1]];g[1][1]='.';
+ while(st.length){var cur=st[st.length-1],x=cur[0],y=cur[1],ds=[[2,0],[-2,0],[0,2],[0,-2]],moved=false;
+  for(i=3;i>0;i--){j=Math.floor(r()*(i+1));t=ds[i];ds[i]=ds[j];ds[j]=t}
+  for(i=0;i<4;i++){var nx=x+ds[i][0],ny=y+ds[i][1];if(nx>0&&ny>0&&nx<n-1&&ny<n-1&&g[ny][nx]==='#'){g[y+ds[i][1]/2][x+ds[i][0]/2]='.';g[ny][nx]='.';st.push([nx,ny]);moved=true;break}}
+  if(!moved)st.pop()}
+ var want=Math.floor(c*c*0.14),done=0,tries=0;
+ while(done<want&&tries<400){tries++;var wx,wy;if(r()<0.5){wx=2*(1+Math.floor(r()*(c-1)));wy=1+2*Math.floor(r()*c)}else{wx=1+2*Math.floor(r()*c);wy=2*(1+Math.floor(r()*(c-1)))}
+  if(g[wy][wx]==='#'){g[wy][wx]='.';done++}}
+ var D4=[[1,0],[-1,0],[0,1],[0,-1]],dist={'1,1':0},q=[[1,1]];
+ while(q.length){var p=q.shift(),dd=dist[p[0]+','+p[1]];D4.forEach(function(d){var a=p[0]+d[0],b=p[1]+d[1],k=a+','+b;if(g[b]&&g[b][a]==='.'&&dist[k]==null){dist[k]=dd+1;q.push([a,b])}})}
+ function deg(x,y){var k=0;D4.forEach(function(d){if(g[y+d[1]][x+d[0]]==='.')k++});return k}
+ var cells=Object.keys(dist).map(function(k){var a=k.split(',');return{x:+a[0],y:+a[1],d:dist[k]}});
+ var ends=cells.filter(function(o){return deg(o.x,o.y)===1&&o.d>2}).sort(function(a,b){return b.d-a.d});
+ var used={'1,1':1};
+ function mark(o){used[o.x+','+o.y]=1;return o}
+ var boss=mark(ends.shift());
+ for(i=ends.length-1;i>0;i--){j=Math.floor(r()*(i+1));t=ends[i];ends[i]=ends[j];ends[j]=t}
+ function spot(){var o=ends.shift();if(o)return mark(o);var pool=cells.filter(function(c){return c.d>=5&&!used[c.x+','+c.y]&&deg(c.x,c.y)<=2});if(!pool.length)pool=cells.filter(function(c){return c.d>=3&&!used[c.x+','+c.y]});return mark(pool[Math.floor(r()*pool.length)])}
+ var feats=[];if(cfg.boss)feats.push({id:'boss',type:'boss',x:boss.x,y:boss.y,foes:[cfg.boss]});
+ var doorEnd=null;
+ for(i=0;i<ends.length&&!doorEnd;i++){var e=ends[i],nb=null;D4.forEach(function(d){if(g[e.y+d[1]][e.x+d[0]]==='.')nb={x:e.x+d[0],y:e.y+d[1]}});
+  if(nb&&deg(nb.x,nb.y)===2){doorEnd=e;ends.splice(i,1);g[nb.y][nb.x]='D';mark(e);used[nb.x+','+nb.y]=1}}
+ if(doorEnd){var ka=spot();feats.push({id:'key',type:'key',x:ka.x,y:ka.y});feats.push({id:'cd',type:'chest',x:doorEnd.x,y:doorEnd.y,good:1})}
+ var c1=spot();feats.push({id:'c1',type:'chest',x:c1.x,y:c1.y});
+ cfg.pages.forEach(function(pn){var s=spot();feats.push({id:'p'+pn,type:'page',x:s.x,y:s.y,n:pn})});
+ var cand=cells.filter(function(c){return c.d>=4&&!used[c.x+','+c.y]});
+ for(i=cand.length-1;i>0;i--){j=Math.floor(r()*(i+1));t=cand[i];cand[i]=cand[j];cand[j]=t}
+ var nm=Math.min(cfg.nM,cand.length);
+ for(i=0;i<nm;i++){var cnt=1+(r()<0.45?1:0)+(r()<0.15?1:0),fo=[],kind=cfg.mons[Math.floor(r()*cfg.mons.length)];
+  for(j=0;j<cnt;j++)fo.push(r()<0.7?kind:cfg.mons[Math.floor(r()*cfg.mons.length)]);
+  feats.push({id:'m'+i,type:'mon',x:cand[i].x,y:cand[i].y,foes:fo})}
+ return{grid:g,feats:feats,boss:{x:boss.x,y:boss.y},n:n}}
+//#GEN-END
+
+// ===== 存檔 =====
+var G;
+function fresh(){return{v:1,started:false,name:'',lv:1,xp:0,hp:100,sp:3,pts:60,oil:12,items:{potion:2,fire:1,water:0,thread:0},keys:0,pages:[],ua:0,ud:0,ending:null,nt:0,loc:'port',in:false,f:1,x:1,y:1,turn:0,seen:{},taken:{},slain:{},opened:{},guard:{},bound:[],steps:0,
+ roster:[],party:[],notes:[],processed:[],battle:null,run:null,dead:false,idle:0,auto:true,test:false,tourDone:false,cleared:false}}
+function load(){try{var t=localStorage.getItem(KEY);if(t){var o=JSON.parse(t);if(o&&o.v===1)return o}}catch(e){}return null}
+G=load()||fresh();
+function persist(){try{localStorage.setItem(KEY,JSON.stringify(G))}catch(e){}arm()}
+function mhp(){return 100+15*(G.lv-1)}
+function pdmg(){return Math.round((12+3*(G.lv-1)+3*(G.ua|0))*(G.oil<=0&&G.in?0.8:1))}
+function parmor(){return 2+(G.ud|0)}
+function allyMax(a){return ALLY[a.style].hp+8*(G.lv-1)}
+function allyDmg(a){return ALLY[a.style].dmg+2*(G.lv-1)+3*(a.ua|0)}
+function allyArmor(a){return 3+(a.ud|0)}
+function person(n){return G.roster.find(function(r){return r.name===n})}
+function partyList(){return G.party.map(person).filter(Boolean)}
+function note(t){G.notes.push(t);if(G.notes.length>8)G.notes.shift()}
+function newRun(){return{kills:{},pts:0,xp:0,items:{},pages:[],boss:[],downs:{},lost:[],deep:1,steps0:G.steps,lv0:G.lv,rests:0,bound:[]}}
+function R(){return G.run||(G.run=newRun())}
+function addItem(k,n){var r=R();r.items[k]=(r.items[k]||0)+(n||1)}
+
+// ===== 迷宮狀態 =====
+var FD={},CUR=null,BT=null,DL=[],DX=[0,1,0,-1],DY=[-1,0,1,0],DGMODE=null;
+function fd(f){return FD[f]||(FD[f]=genFloor(f))}
+function makeCur(f){var d=fd(f),g=d.grid.map(function(r){return r.slice()});
+ for(var y=0;y<g.length;y++)for(var x=0;x<g.length;x++)if(g[y][x]==='D'&&G.opened[f+':'+x+','+y])g[y][x]='.';
+ if(!FL[f].boss||G.guard[f])g[d.boss.y][d.boss.x]='>';return g}
+function say(s){DL.unshift(s);if(DL.length>40)DL.length=40;upd()}
+function feAlive(f,ft){var k=f+':'+ft.id;if(ft.type==='mon')return !G.slain[k];if(ft.type==='boss')return !G.guard[f];return !G.taken[k]}
+function featAt(x,y,types){return fd(G.f).feats.find(function(ft){return ft.x===x&&ft.y===y&&feAlive(G.f,ft)&&(!types||types.indexOf(ft.type)>=0)})}
+function isDark(){return G.in&&G.oil<=0}
+var turn=0,px=1.5,py=1.5,ang=0,tx=1.5,ty=1.5,tang=0,flash=0;
+function snapView(){px=tx=G.x+.5;py=ty=G.y+.5;turn=G.turn;ang=tang=-Math.PI/2+turn*Math.PI/2}
+function reveal(){var k=G.f,s=G.seen[k]||(G.seen[k]={});for(var dy=-1;dy<=1;dy++)for(var dx=-1;dx<=1;dx++)s[(G.x+dx)+','+(G.y+dy)]=1}
+function enterFloor(f,mode){G.f=f;CUR=makeCur(f);var d=fd(f);if(mode==='up'){G.x=d.boss.x;G.y=d.boss.y}else{G.x=1;G.y=1}
+ var best=0;for(var k=0;k<4;k++){if(CUR[G.y+DY[k]]&&CUR[G.y+DY[k]][G.x+DX[k]]!=='#'){best=k;break}}
+ G.turn=best;snapView();reveal();if(G.in&&G.run&&f>G.run.deep)G.run.deep=f;persist();upd()}
+function dir(){return((turn%4)+4)%4}
+function moving(){return Math.abs(tx-px)>.05||Math.abs(ty-py)>.05||Math.abs(tang-ang)>.05}
+function tryMove(dx,dy){var nx=G.x+dx,ny=G.y+dy,c=CUR[ny]&&CUR[ny][nx];
+ if(!c||c==='#'){say('前面是冰冷的石牆。');return}
+ if(c==='D'){if(G.keys>0){G.keys--;G.opened[G.f+':'+nx+','+ny]=1;CUR[ny][nx]='.';say('青銅鑰匙轉動，門開了。')}else say('門鎖住了，需要一把青銅鑰匙。');persist();upd();return}
+ var m=featAt(nx,ny,['mon','boss']);if(m){if(m.type==='boss'&&G.f===FL.length-1&&G.pages.length>=5&&!G.ending){PB=m;namePrompt('');return}startBattle({type:m.type,id:m.id,foes:m.foes,ctx:'dg'});return}
+ G.x=nx;G.y=ny;tx=G.x+.5;ty=G.y+.5;G.steps++;reveal();
+ if(G.steps%12===0&&G.oil>0){G.oil--;if(G.oil===0)say('燈油用盡，四周陷入黑暗。')}
+ if(CUR[G.y][G.x]==='>'&&!G.guard[G.f]&&!FL[G.f].boss)bindFloor();
+ var it=featAt(G.x,G.y,['key','chest','page']);if(it){G.taken[G.f+':'+it.id]=1;pickup(it)}
+ persist();upd()}
+function loot(good){var f=G.f,o=[],n=good?2:1;
+ for(var i=0;i<n;i++){var r=Math.random();
+  if(r<0.5||(good&&i===0)){var v=ri(25,55)*f*(good?2:1);G.pts+=v;R().pts+=v;o.push(v+' 銀幣')}
+  else if(r<0.78){G.items.potion++;addItem('potion');o.push('橄欖藥酒')}
+  else if(r<0.92){G.items.fire++;addItem('fire');o.push('火油瓶')}
+  else{G.oil=Math.min(30,G.oil+6);addItem('oil',6);o.push('燈油 +6')}}
+ return o.join('、')}
+function pickup(it){
+ if(it.type==='key'){G.keys++;say('撿到一把青銅鑰匙。')}
+ else if(it.type==='chest'){say('打開寶箱，得到：'+loot(it.good))}
+ else if(it.type==='page'){G.pages.push(it.n);R().pages.push(it.n);say('📜 '+PAGES[it.n-1]);if(G.pages.length>=5)say('五頁手稿拼在一起了。最後一行字下面，有一個被劃掉很多次的名字，看得出是三個字。')}}
+function nearMon(){return fd(G.f).feats.some(function(ft){return(ft.type==='mon'||ft.type==='boss')&&feAlive(G.f,ft)&&Math.max(Math.abs(ft.x-G.x),Math.abs(ft.y-G.y))<=3})}
+function act(a){if(!G.in||G.dead||BT||moving())return;var d=dir();
+ switch(a){case'fwd':tryMove(DX[d],DY[d]);break;case'back':tryMove(-DX[d],-DY[d]);break;
+ case'sl':tryMove(DX[(d+3)%4],DY[(d+3)%4]);break;case'sr':tryMove(DX[(d+1)%4],DY[(d+1)%4]);break;
+ case'tl':G.turn--;turn=G.turn;tang=-Math.PI/2+turn*Math.PI/2;break;case'tr':G.turn++;turn=G.turn;tang=-Math.PI/2+turn*Math.PI/2;break}}
+function onSpring(){return G.x===1&&G.y===1}
+function onStairs(){return CUR&&CUR[G.y]&&CUR[G.y][G.x]==='>'}
+
+// ===== 進出迷宮與探索紀錄 =====
+var PB=null;
+function namePrompt(msg){modal('<div data-lock><h3>阿斯忒里翁</h3><div class="mut">巨大的身影背對著你們，沒有動。手稿最後一行被劃掉的名字，浮現在你腦中。</div>'+(msg?'<div style="margin:8px 0;color:var(--amb)">'+esc(msg)+'</div>':'')+'<label>叫出名字（'+(3-(G.nt|0))+' 次機會）</label><input id="nm-in" placeholder="輸入名字" autocomplete="off"><button class="btn amb" data-m="nameTry">叫出名字</button><button class="btn red" data-m="namefight">拔出武器</button><button class="btn" data-m="close">退後</button></div>')}
+function normName(t){return String(t||'').replace(/[\s「」『』·・，。,.]/g,'')}
+function nameTry(){var v=normName(($('nm-in')||{}).value);if(!v){toast('請輸入名字');return}
+ if(QNAME.indexOf(v)>=0){closeModal();G.ending='name';G.guard[G.f]=true;if(G.bound.indexOf(G.f)<0)G.bound.push(G.f);R().bound.push(FL[G.f].n);persist();showEnding('name');return}
+ G.nt=(G.nt|0)+1;persist();
+ if(G.nt>=3){closeModal();say('你喊錯了三次。巨大的身影慢慢轉過身——');if(PB)startBattle({type:PB.type,id:PB.id,foes:PB.foes,ctx:'dg'});return}
+ namePrompt('「……」它沒有反應。那不是它在等的名字。')}
+function showEnding(kind){var k=kind==='king'?{t:'結局：王命',p:['阿斯忒里翁倒下的時候，沒有吼叫。','牆壁停止了呼吸，整座迷宮第一次完全安靜。你們踩過的每一條路，都像是從來沒有活過。','你按照宰相的吩咐，完成了這份差事。']}:{t:'結局：名字',p:['你說出那個名字。巨大的身影停住，斧頭垂下。','它沒有說話，只是低頭看著你們，像在等一個很久以前就該有人說出口的聲音。','然後牆壁一面一面地安靜下來，迷宮停了。你違抗了王命，但它不再需要有人留在裡面。']};
+ modal('<div data-lock><h3>'+k.t+'</h3>'+k.p.map(function(x){return'<div class="mut" style="margin:6px 0">'+esc(x)+'</div>'}).join('')+'<button class="btn amb" data-m="endgo">回到地面（把結局交給 AI）</button></div>')}
+function bindFloor(){G.guard[G.f]=true;if(G.bound.indexOf(G.f)<0)G.bound.push(G.f);R().bound.push(FL[G.f].n);say('走到階梯前，阿里阿德涅之線在這一層打了結。')}
+function healAll(){G.hp=mhp();G.sp=3;G.roster.forEach(function(a){if(a.state!=='dead'){a.hp=allyMax(a);a.state='ok'}})}
+function itemName(k){return ITEM[k]?ITEM[k].n:k}
+function summary(ending){var r=R(),L=['【探索紀錄】'];
+ L.push('路線：第'+(r.from||1)+'層→最深到第'+r.deep+'層｜走了 '+(G.steps-r.steps0)+' 步｜泉邊休整 '+r.rests+' 次');
+ var k=Object.keys(r.kills).map(function(n){return n+'×'+r.kills[n]}).join('、');L.push('擊倒：'+(k||'無'));
+ if(r.boss.length)L.push('守關者：'+r.boss.join('、')+'（已擊敗）');
+ if(r.bound.length)L.push('繫結樓層：'+r.bound.join('、'));
+ var it=[];if(r.pts)it.push('銀幣 +'+r.pts);Object.keys(r.items).forEach(function(n){it.push(itemName(n)+(n==='oil'?' +'+r.items[n]:'×'+r.items[n]))});if(r.xp)it.push('經驗 +'+r.xp);if(G.lv>r.lv0)it.push('升到 Lv.'+G.lv);
+ L.push('收穫：'+(it.join('、')||'無'));
+ if(r.pages.length)L.push('手稿：'+r.pages.map(function(n){return PAGES[n-1]}).join(' '));
+ var team=G.party.map(person).filter(Boolean).map(function(a){return a.name+(a.state==='injured'?'（重傷）':a.state==='dead'?'（已死）':r.downs[a.name]?'（途中倒地過）':'（正常）')}).join('、');
+ if(team)L.push('同伴：'+team);if(r.lost.length)L.push('被留在迷宮裡的人：'+r.lost.join('、'));
+ if(r.thread)L.push('離開方式：用掉一個線團，被線直接拉回地面。');
+ L.push('離開時：生命 '+Math.max(0,G.hp)+'/'+mhp()+'、燈油 '+G.oil+'。'+(ending||'平安循線之階回到地面，已在線之館休整回復。'));
+ return L.join('\n')}
+function sendOut(text){ST.evs=[];ST.res='';ST.go=null;ST.busy=true;TAB='story';if(P){post({t:'fill',text:text,send:G.auto,keep:true});if(!G.auto)ST.busy=false}else{toast('（測試模式）'+text.split('\n')[0]);ST.busy=false}render()}
+function exitDungeon(){var txt=summary(G.ending?ENDTXT[G.ending]:undefined);G.in=false;G.loc='guild';G.idle=0;healAll();G.run=null;BT=null;persist();DGMODE=null;sendOut(txt)}
+function startFloors(){var m=0;G.bound.forEach(function(f){if(f>m)m=f});var o=[1];for(var f=2;f<=Math.min(m+1,FL.length-1);f++)o.push(f);return o}
+function enterDungeon(f){if(G.ending||G.dead)return;f=+f||1;if(startFloors().indexOf(f)<0)f=1;G.in=true;G.run=newRun();G.run.deep=f;G.run.from=f;G.f=f;enterFloor(f,'start');DL=[];say(f>1?'你們循著線一路走下去，來到'+FL[f].n+'。':'你們走下線之階，進入米諾斯迷宮。');TAB='dg';DGMODE=null;persist();render()}
+
+// ===== 泉、階梯 =====
+function springMenu(){var h='<h3>🕯 線之泉（'+FL[G.f].n+'）</h3><div class="mut">'+(G.guard[G.f]?'此層守關者已擊敗，線已繫結。':'線還沒有在這一層打結。')+'</div>';
+ h+='<button class="btn" data-m="rest">休整：全隊回復，這層的魔物會重新長出來</button>';
+ h+='<button class="btn" data-m="water" '+(G.items.water>=3?'disabled':'')+'>取泉水（持有 '+G.items.water+'/3）</button>';
+ var bd=G.bound.filter(function(f){return f!==G.f});
+ if(bd.length){h+='<div class="mut">阿里阿德涅之線'+(nearMon()?'：附近有魔物，線繃斷了，無法使用。':'：選擇已繫結的樓層')+'</div>';if(!nearMon())bd.forEach(function(f){h+='<button class="btn" data-m="tp" data-a="'+f+'">循線回到 '+FL[f].n+'</button>'})}
+ if(G.f>1)h+='<button class="btn" data-m="up">上樓（回到上一層的階梯）</button>';else h+='<button class="btn amb" data-m="surface">回地面（線之階）</button>';
+ h+='<button class="btn" data-m="close">關閉</button>';modal(h)}
+function modal(h){$('mbox').innerHTML=h;$('modal').classList.add('on')}
+function closeModal(){$('modal').classList.remove('on')}
+$('modal').addEventListener('click',function(e){if(e.target.id==='modal'&&!$('mbox').querySelector('[data-lock]'))closeModal()});
+document.addEventListener('click',function(e){var b=e.target.closest('[data-m]');if(!b)return;var m=b.dataset.m,a=b.dataset.a;
+ if(m==='close'){closeModal();return}
+ if(m==='rest'){healAll();R().rests++;Object.keys(G.slain).forEach(function(k){if(k.indexOf(G.f+':')===0)delete G.slain[k]});say('在泉邊休整。傷勢恢復了，但迷宮也趁這段時間重新長出了魔物。');closeModal();persist();upd();return}
+ if(m==='water'){if(G.items.water<3){G.items.water++;say('取了一瓶線之泉水。')}persist();springMenu();return}
+ if(m==='tp'){closeModal();if(nearMon()){say('線繃斷了。');return}enterFloor(+a,'start');say('抓住線，沿著它走回去——景色像被收攏的織物一樣縮回來。');return}
+ if(m==='up'){closeModal();enterFloor(G.f-1,'up');say('你們走上階梯，回到'+FL[G.f].n+'。');return}
+ if(m==='surface'){modal('<div data-lock><h3>回地面？</h3><div class="mut">會把這趟的探索紀錄一次送給 AI，由它接寫回到地面的場面。回到地面後生命會回滿。</div><button class="btn amb" data-m="surface2">循線之階回地面</button><button class="btn" data-m="close">再逛逛</button></div>');return}
+ if(m==='surface2'){closeModal();exitDungeon();return}
+ if(m==='descend'){closeModal();if(G.f>=FL.length-1){modal('<h3>深處</h3><div class="mut">階梯的下方沒有路了，這裡已是迷宮的最深處。</div><button class="btn" data-m="close">關閉</button>');return}
+  enterFloor(G.f+1,'start');say('你們走下階梯，來到'+FL[G.f].n+'。');return}
+ if(m==='nameTry'){nameTry();return}if(m==='namefight'){closeModal();if(PB)startBattle({type:PB.type,id:PB.id,foes:PB.foes,ctx:'dg'});return}if(m==='endgo'){closeModal();exitDungeon();return}if(m==='sk'){closeModal();cmd(a);return}if(m==='skh'){closeModal();healPlayer(+a);return}if(m==='it'){useItem(a);return}if(m==='itt'){useItemOn(a,+b.dataset.t);return}
+ if(m==='buy'){buy(a);return}if(m==='upg'){upgrade(a);return}
+ if(m==='enter'){closeModal();enterDungeon(a);return}
+ if(m==='thread'){modal('<div data-lock><h3>拉緊線團？</h3><div class="mut">會消耗 1 個線團，立刻回地面，並把這趟的探索紀錄送給 AI。</div><button class="btn amb" data-m="thread2">拉線回地面</button><button class="btn" data-m="close">不用</button></div>');return}
+ if(m==='thread2'){closeModal();if(!(G.items.thread>0))return;G.items.thread--;R().thread=1;exitDungeon();return}
+});
+
+// ===== 戰鬥 =====
+function startBattle(cfg){if(G.battle&&G.battle.pending&&BT)return;
+ G.battle={pending:true,type:cfg.type,id:cfg.id||null,foes:cfg.foes.slice(),ctx:cfg.ctx,where:cfg.where||'',why:cfg.why||''};initBT();persist()}
+function initBT(){var c=G.battle;
+ var party=[{id:'P',name:G.name||'你',side:'p',hp:G.hp,max:mhp(),dmg:pdmg(),armor:parmor(),style:'主角'}];
+ partyList().forEach(function(a,i){if(a.state==='dead')return;party.push({id:'A'+i,ref:a,name:a.name,side:'a',hp:Math.max(a.hp,a.state==='injured'?1:0),max:allyMax(a),dmg:allyDmg(a),armor:allyArmor(a),style:a.style,cd:0,sp:2})});
+ var foes=c.foes.map(function(k,i){var t=enemyStat(k,c.ctx==='dg'?G.f:0);return{id:'E'+i,name:k,side:'e',hp:t.hp,max:t.hp,dmg:t.d,armor:0,boss:!!t.boss,shape:t.shape,col:t.col,img:t.img}});
+ BT={cfg:c,party:party,foes:foes,round:1,mode:'cmd',pending:null,log:['戰鬥開始！'],over:null};
+ if(c.type==='boss')say('你們踏進守關房——身後的青銅門轟然關閉。'+c.foes[0]+'睜開了眼。');
+ TAB='dg';DGMODE=null;post({t:'want',open:true});render()}
+function liveF(){return BT.foes.filter(function(x){return x.hp>0})}
+function liveP(){return BT.party.filter(function(x){return x.hp>0})}
+function blog(s){BT.log.unshift(s);upd()}
+function hurt(a,d,mult,tag,pierce){var base=a.dmg*(mult||1)*rf(.85,1.15);if(a.side!=='e'&&BT.buff&&BT.buff.r>0)base*=1.25;if(d.def)base*=.5;var v=Math.max(1,Math.round(base-(pierce?0:d.armor)));d.hp-=v;
+ blog((a.side==='p'?'你':a.name)+(tag||' 攻擊 ')+(d.side==='p'?'你':d.name)+'，造成 '+v+' 傷害');
+ if(d.hp<=0){d.hp=0;blog((d.side==='p'?'你':d.name)+(d.side==='e'?' 倒下了':' 倒地了！'))}
+ if(d.side==='p'||d.side==='a')flash=1;return v}
+function castFoe(u,id,tg){
+ if(id==='str')hurt(u,tg,1.8,' 強擊 ');
+ else if(id==='combo'){hurt(u,tg,.9,' 連擊 ');var t2=tg.hp>0?tg:liveF()[0];if(t2&&!BT.over)hurt(u,t2,.9,' 連擊 ')}
+ else if(id==='pierce')hurt(u,tg,1.2,' 破甲攻擊 ',true)}
+function cheerOn(u){BT.buff={r:3};blog((u.side==='p'?'你':u.name)+' 鼓舞了全隊，傷害提高 25%')}
+function skillMenu(){var h='<h3>技能（氣力 '+G.sp+'/3）</h3>';
+ SKO.forEach(function(k){var s2=SK[k],ok=G.lv>=s2.lv;h+='<button class="btn" data-m="sk" data-a="'+k+'" '+(ok&&G.sp>=s2.sp?'':'disabled')+'>'+(ok?'':'🔒 ')+s2.n+'（'+s2.sp+' 氣力）<div class="mut">'+(ok?s2.d:'Lv.'+s2.lv+' 解鎖')+'</div></button>'});
+ h+='<button class="btn" data-m="close">取消</button>';modal(h)}
+function healMenu(){var h='<h3>治療誰？</h3>';BT.party.forEach(function(p,i){h+='<button class="btn" data-m="skh" data-a="'+i+'" '+(p.hp>0&&p.hp<p.max?'':'disabled')+'>'+esc(p.name)+'｜'+(p.hp>0?p.hp+'/'+p.max:'倒地')+'</button>'});h+='<button class="btn" data-m="close">取消</button>';modal(h)}
+function healPlayer(i){var p=BT.party[i],Pl=BT.party[0];if(!p||p.hp<=0||BT.mode==='busy')return;G.sp-=SK.heal.sp;Pl.def=false;var v=Math.round(p.max*.35);p.hp=Math.min(p.max,p.hp+v);blog('你治療了 '+(p.side==='p'?'自己':p.name)+'，回復 '+v+' 生命');endRound()}
+function allySkill(a){var lst=ASK[a.style]||[];
+ for(var n=0;n<lst.length;n++){var id=lst[n],sk=SK[id];if(id==='heal'&&G.lv>=sk.lv&&(a.sp|0)<sk.sp&&liveP().some(function(p){return p.hp<p.max*.6}))return false;if(G.lv<sk.lv||(a.sp|0)<sk.sp)continue;var fs=liveF();if(!fs.length)return false;
+  if(id==='heal'){var low=liveP().filter(function(p){return p.hp<p.max*.6}).sort(function(x,y){return x.hp/x.max-y.hp/y.max})[0];if(!low)continue;a.sp-=sk.sp;var v=Math.round(low.max*.35);low.hp=Math.min(low.max,low.hp+v);blog(a.name+' 施展治療，'+(low.side==='p'?'你':low.name)+' 回復 '+v+' 生命');return true}
+  if(id==='cheer'){if(BT.buff&&BT.buff.r>0)continue;a.sp-=sk.sp;cheerOn(a);return true}
+  a.sp-=sk.sp;if(a.style==='盾手')a.taunt=true;castFoe(a,id,a.style==='弓手'?fs.slice().sort(function(x,y){return x.hp-y.hp})[0]:pick(fs));return true}
+ return false}
+function cmd(k,t){if(!BT||BT.over||BT.mode==='busy')return;var Pl=BT.party[0];
+ if(k==='skill'){skillMenu();return}
+ if(k==='heal'){if(G.lv<SK.heal.lv||G.sp<SK.heal.sp)return;healMenu();return}
+ if(Pl.hp<=0){endRound();return}Pl.def=false;
+ var sk=SK[k];
+ if(k==='cheer'){if(G.lv<sk.lv||G.sp<sk.sp){blog('氣力不足（'+sk.n+'需要 '+sk.sp+'）');return}G.sp-=sk.sp;cheerOn(Pl);endRound()}
+ else if(k==='atk'||(sk&&sk.t==='foe')){var fs=liveF();
+  if(sk&&(G.lv<sk.lv||G.sp<sk.sp)){blog('氣力不足（'+sk.n+'需要 '+sk.sp+'）');return}
+  if(fs.length>1&&t==null){BT.pending=k;BT.mode='tgt';upd();return}
+  var tg=t!=null?BT.foes[t]:fs[0];BT.mode='cmd';BT.pending=null;
+  if(sk){G.sp-=sk.sp;castFoe(Pl,k,tg)}else hurt(Pl,tg,1,' 攻擊 ');endRound()}
+ else if(k==='def'){Pl.def=true;blog('你擺出防禦架勢，這回合受到的傷害減半');endRound()}
+ else if(k==='item'){itemMenu()}
+ else if(k==='flee'){
+  if(BT.cfg.type==='boss'){blog('青銅門已經關上，逃不掉！');return}
+  if(Math.random()<(BT.cfg.ctx==='sf'?0.7:0.6)){fled()}else{blog('你想逃，但被擋住了！');endRound()}}}
+function itemMenu(){var h='<h3>道具</h3>',any=0;
+ ['potion','fire','water'].forEach(function(k){if(G.items[k]>0){any=1;h+='<button class="btn" data-m="it" data-a="'+k+'">'+ITEM[k].n+' ×'+G.items[k]+'<div class="mut">'+ITEM[k].note+'</div></button>'}});
+ if(!any)h+='<div class="mut">沒有可用的道具。</div>';h+='<button class="btn" data-m="close">關閉</button>';modal(h)}
+function useItem(k){if(k==='fire'){closeModal();G.items.fire--;blog('你丟出火油瓶！');liveF().forEach(function(f){var v=Math.max(1,22-f.armor);f.hp=Math.max(0,f.hp-v);blog(f.name+' 受到 '+v+' 火焰傷害'+(f.hp<=0?'，倒下了':''))});endRound();return}
+ var h='<h3>對誰使用？</h3>';BT.party.forEach(function(p,i){var ok=k==='potion'?p.hp>0:p.hp<=0;h+='<button class="btn" data-m="itt" data-a="'+k+'" data-t="'+i+'" '+(ok?'':'disabled')+'>'+esc(p.name)+'｜'+(p.hp>0?p.hp+'/'+p.max:'倒地')+'</button>'});
+ h+='<button class="btn" data-m="close">取消</button>';modal(h)}
+function useItemOn(k,i){closeModal();var p=BT.party[i];G.items[k]--;
+ if(k==='potion'){p.hp=Math.min(p.max,p.hp+45);blog('藥酒讓 '+(p.side==='p'?'你':p.name)+' 回復了 45 生命')}
+ else{p.hp=Math.round(p.max*.4);blog('泉水把 '+(p.side==='p'?'你':p.name)+' 從地上拉了回來')}endRound()}
+function allyActs(){BT.party.forEach(function(a){if(a.side!=='a'||a.hp<=0||BT.over)return;var fs=liveF();if(!fs.length)return;if(allySkill(a))return;
+ if(a.style==='盾手'){a.taunt=true;hurt(a,pick(fs),1,' 重擊 ')}
+ else if(a.style==='弓手'){hurt(a,fs.slice().sort(function(x,y){return x.hp-y.hp})[0],1,' 射擊 ')}
+ else if(a.style==='祭司'){a.cd--;var low=liveP().filter(function(p){return p.hp<p.max*.55}).sort(function(x,y){return x.hp/x.max-y.hp/y.max})[0];
+  if(low&&a.cd<=0){var h=18+4*G.lv;low.hp=Math.min(low.max,low.hp+h);a.cd=2;blog(a.name+' 為 '+(low.side==='p'?'你':low.name)+' 祈禱，回復 '+h)}else hurt(a,pick(fs),1,' 揮杖打向 ')}
+ else{hurt(a,pick(fs),1,' 攻擊 ');if(Math.random()<.3){var s=pick(fs);s.stun=true;blog(a.name+' 的機關卡住了 '+s.name)}}})}
+function foeTargets(){var w=[];liveP().forEach(function(p){w.push(p);if(p.taunt)w.push(p)});return w}
+function foeActs(){BT.foes.forEach(function(f){if(f.hp<=0||BT.over)return;if(f.stun){f.stun=false;blog(f.name+' 動彈不得');return}
+ if(!liveP().length)return;var tg=pick(foeTargets()),r=BT.round;
+ if(f.name==='石像守衛'){if(r%3===0){blog('石像守衛舉起雙拳——');hurt(f,tg,1.8,' 砸向 ')}else hurt(f,tg,1,' 揮拳打向 ')}
+ else if(f.name==='銅輪巨像'){hurt(f,tg,1,' 碾向 ');if(r%2===0){blog('巨像身上的銅輪瘋狂旋轉！');liveP().forEach(function(p){hurt(f,p,.5,' 的輪刃掃過 ')})}}
+ else if(f.name==='鏡之守'){var lp=liveP();if(r%3===0){var top=lp.slice().sort(function(a,b){return b.dmg-a.dmg})[0];blog('鏡之守映出你們的樣子，舉起了同樣的武器——');hurt(f,top,1.6,' 的映像砍向 ')}else{hurt(f,tg,.8,' 攻擊 ');if(liveP().length)hurt(f,pick(liveP()),.8,' 的映像打向 ')}}
+ else if(f.name==='織線者'){if(r%3===0){blog('織線者收緊了所有的線——');liveP().forEach(function(p){hurt(f,p,.7,' 的線勒向 ')})}else if(r%4===0){hurt(f,tg,1);if(liveP().length)hurt(f,pick(liveP()),1)}else hurt(f,tg,1,' 攻擊 ')}
+ else if(f.name==='阿斯忒里翁'){var en=f.hp<f.max*.5,m=en?1.3:1;if(en&&!f.raged){f.raged=true;blog('阿斯忒里翁發出一聲不像怒吼的悲鳴，牆壁跟著震動。')}
+  if(r%4===0){blog('阿斯忒里翁低下頭，牛角對準了你——');hurt(f,BT.party[0].hp>0?BT.party[0]:tg,2*m,' 衝撞 ')}else{hurt(f,tg,m,' 揮斧砍向 ');if(en&&r%2===0)hurt(f,pick(liveP()),m,' 再次砍向 ')}}
+ else hurt(f,tg,1,' 攻擊 ')})}
+function endRound(){if(!BT||BT.over)return;BT.mode='busy';upd();var wait=!window.__fast;
+ var steps=[function(){if(!liveF().length)return win();allyActs()},function(){if(!liveF().length)return win();foeActs()},function(){
+  if(!liveP().length)return lose();BT.party.forEach(function(p){p.taunt=false;if(p.side==='a'&&p.sp<3)p.sp++});if(BT.buff){BT.buff.r--;if(BT.buff.r<=0){BT.buff=null;blog('鼓舞的效果消失了')}}BT.round++;G.sp=Math.min(3,G.sp+1);BT.mode='cmd';blog('— 第 '+BT.round+' 回合 —')}];
+ var i=0;(function go(){if(!BT||BT.over)return;steps[i++]();if(!BT||BT.over)return;if(i<steps.length){if(wait)setTimeout(go,380);else go()}})()}
+function sync(){var Pl=BT.party[0];G.hp=Math.max(Pl.hp,0);BT.party.forEach(function(p){if(p.ref)p.ref.hp=p.hp})}
+function noteDowns(){BT.party.forEach(function(p){if(p.ref&&p.hp<=0)R().downs[p.name]=true})}
+function finishBt(){G.battle=null;BT=null;DGMODE=null;persist()}
+function surfaceReport(res,extra){var c=BT.cfg,cnt={};BT.foes.forEach(function(f){cnt[f.name]=(cnt[f.name]||0)+1});
+ var team=BT.party.slice(1).map(function(p){return p.name+(p.hp<=0?'（倒地）':'')}).join('、');
+ return '【戰鬥結果】地面｜'+(c.where||LOC[G.loc])+'｜結果：'+res+'\n敵人：'+Object.keys(cnt).map(function(k){return k+'×'+cnt[k]}).join('、')+'\n你的生命：'+G.hp+'/'+mhp()+(team?'\n同伴：'+team:'')+(extra?'\n'+extra:'')}
+function win(){BT.over='win';sync();var c=BT.cfg,xp=0,pts=0,k={};BT.foes.forEach(function(f){var t=enemyStat(f.name,c.ctx==='dg'?G.f:0);xp+=t.xp;pts+=t.pts;k[f.name]=(k[f.name]||0)+1});
+ G.xp+=xp;G.pts+=pts;var lv0=G.lv;while(G.xp>=30*G.lv){G.xp-=30*G.lv;G.lv++;G.hp+=15}
+ BT.party.forEach(function(p){if(p.ref&&p.hp<=0){p.ref.hp=1;p.ref.state='injured'}});if(G.hp<=0)G.hp=1;
+ var drop='';if(Math.random()<.25){G.items.potion++;drop='，撿到一瓶藥酒'}
+ var msg='戰勝！經驗 +'+xp+'、銀幣 +'+pts+drop+(G.lv>lv0?'　⬆ 升到 Lv.'+G.lv:'');
+ if(c.ctx==='dg'){noteDowns();var r=R();r.pts+=pts;r.xp+=xp;if(drop)addItem('potion');Object.keys(k).forEach(function(n){r.kills[n]=(r.kills[n]||0)+k[n]});
+  G.slain[G.f+':'+c.id]=1;
+  if(c.type==='boss'){G.guard[G.f]=true;delete G.slain[G.f+':'+c.id];if(G.bound.indexOf(G.f)<0)G.bound.push(G.f);CUR[fd(G.f).boss.y][fd(G.f).boss.x]='>';r.boss.push(c.foes[0]);r.bound.push(FL[G.f].n);if(G.f>=FL.length-1){G.cleared=true;G.ending='king'}
+   msg+='。青銅門打開了，守關者倒下的地方長出了往下的階梯。阿里阿德涅之線在這一層打了結。'}
+  setTimeout(function(){finishBt();say(msg);if(G.ending==='king'&&G.in)showEnding('king')},900)}
+ else{var txt=surfaceReport('勝利','獎勵：經驗 +'+xp+'、銀幣 +'+pts+drop+(G.lv>lv0?'、升到 Lv.'+G.lv:''));
+  setTimeout(function(){finishBt();sendOut(txt)},900)}}
+function fled(){BT.over='fled';sync();var c=BT.cfg;
+ if(c.ctx==='dg'){var lost=[];BT.party.forEach(function(p){if(p.ref&&p.hp<=0){p.ref.state='dead';lost.push(p.name);R().lost.push(p.name)}});
+  if(G.hp<=0)G.hp=1;var d=dir(),bx=G.x-DX[d],by=G.y-DY[d];if(CUR[by]&&CUR[by][bx]&&CUR[by][bx]!=='#'&&CUR[by][bx]!=='D'){G.x=bx;G.y=by;tx=G.x+.5;ty=G.y+.5}
+  setTimeout(function(){finishBt();say('你們逃走了。'+(lost.length?lost.join('、')+' 被留在原地，迷宮慢慢把他們吞了下去。':''))},500)}
+ else{BT.party.forEach(function(p){if(p.ref&&p.hp<=0){p.ref.hp=1;p.ref.state='injured'}});if(G.hp<=0)G.hp=1;var txt=surfaceReport('逃走了');setTimeout(function(){finishBt();sendOut(txt)},500)}}
+function lose(){BT.over='lose';sync();var c=BT.cfg;
+ if(c.ctx==='dg'){G.dead=true;noteDowns();var txt=summary('全隊覆沒，沒有人能回到地面。本局結束。');G.hp=0;
+  setTimeout(function(){finishBt();modal('<div data-lock><h3>全滅</h3><div class="mut">最後一個人倒下了。迷宮安靜了一會兒，然後開始消化。</div><button class="btn amb" data-m="lostclose">看結局</button></div>');window.__lostTxt=txt},700)}
+ else{G.hp=1;BT.party.forEach(function(p){if(p.ref&&p.hp<=0){p.ref.hp=1;p.ref.state='injured'}});var loss=Math.floor(G.pts*0.3);G.pts-=loss;var txt=surfaceReport('戰敗',(loss?'損失銀幣 '+loss+'。':'')+'你被打倒了，但沒有死，醒來時傷得很重。');setTimeout(function(){finishBt();sendOut(txt)},700)}}
+document.addEventListener('click',function(e){var b=e.target.closest('[data-m="lostclose"]');if(!b)return;closeModal();var t=window.__lostTxt||'';G.in=false;persist();DGMODE=null;sendOut(t)});
+
+// ===== 地面事件與購物 =====
+function buy(a){if(G.in||BT||G.loc!=='market'){toast('要在市集街才能買補給');return}var c=0;
+ if(a==='potion'){c=25;if(G.pts>=c){G.pts-=c;G.items.potion++;note('買了橄欖藥酒')}}
+ else if(a==='fire'){c=35;if(G.pts>=c){G.pts-=c;G.items.fire++;note('買了火油瓶')}}
+ else if(a==='thread'){c=30;if(G.pts>=c){G.pts-=c;G.items.thread=(G.items.thread||0)+1;note('買了線團')}}
+ else if(a==='oil'){c=15;if(G.pts>=c){G.pts-=c;G.oil=Math.min(30,G.oil+6);note('買了燈油')}}
+ persist();render()}
+function upTarget(i){return i<0?G:G.roster[i]}
+function upgrade(a){if(G.in||BT||G.loc!=='smith'){toast('要在工匠區才能強化');return}
+ var p=String(a).split(':'),i=+p[0],k=p[1],t=upTarget(i);if(!t||(k!=='a'&&k!=='d'))return;if(i>=0&&t.state==='dead'){toast('已經死亡的人無法強化');return}
+ var key=k==='a'?'ua':'ud',n=t[key]|0;if(n>=UPMAX){toast('已強化到上限');return}
+ var c=upCost(k,n);if(G.pts<c){toast('銀幣不足');return}
+ G.pts-=c;t[key]=n+1;if(i<0&&k==='d'){}
+ note('強化：'+(i<0?(G.name||'你'):t.name)+(k==='a'?'攻擊':'防禦')+' Lv.'+(n+1));persist();render()}
+function apply(ev){var t=ev&&ev.type;
+ switch(t){
+ case'points':{var n=clamp(parseInt(ev.n,10)||0,-300,300);G.pts=Math.max(0,G.pts+n);return(n>=0?'+':'')+n+' 銀幣'}
+ case'hp':{var d=clamp(parseInt(ev.n,10)||0,-30,30);G.hp=clamp(G.hp+d,1,mhp());return'生命 '+(d>=0?'+':'')+d}
+ case'gift':{var k=String(ev.item||''),nn=clamp(parseInt(ev.n,10)||1,1,2);if(k==='oil'){G.oil=Math.min(30,G.oil+6*nn);return'燈油 +'+6*nn}if(k==='potion'||k==='fire'){G.items[k]+=nn;return itemName(k)+'×'+nn}throw new Error('不能給這個道具')}
+ case'go':{if(G.in)return null;if(LOC[ev.place]){G.loc=ev.place;return'前往'+LOC[ev.place]}throw new Error('未知地點')}
+ case'open':{var OT={stat:'⌚ 查看狀態',shop:'🛒 打開商店',dg:'🧭 迷宮'},tb=String(ev.tab||'stat');if(!OT[tb])tb='stat';ST.go={tab:tb,label:OT[tb]};return''}
+ case'ally_join':{var nm=String(ev.name||'').trim().slice(0,12);if(!nm)throw new Error('同伴沒有名字');var p=person(nm);if(p&&p.state==='dead')throw new Error(nm+'已死亡');
+  if(G.party.indexOf(nm)>=0)return null;if(G.party.length>=3)throw new Error('隊伍已滿，'+nm+'無法加入');
+  if(!p){var st=ALLY[ev.style]?ev.style:(CORE[nm]||'盾手');p={name:nm,style:st,bond:clamp(parseInt(ev.bond,10)||0,0,3),hp:0,state:'ok'};p.hp=allyMax(p);G.roster.push(p)}
+  G.party.push(nm);return nm+' 加入隊伍'}
+ case'ally':{var a=person(String(ev.name||''));if(!a)throw new Error('名冊沒有 '+ev.name);var out=[];
+  if(ev.bond!=null){var b=typeof ev.bond==='string'?BOND.indexOf(ev.bond):parseInt(ev.bond,10);if(b>=0&&b<=3){a.bond=b;out.push('好感 '+BOND[b])}}
+  return a.name+'：'+(out.join('、')||'已更新')}
+ case'ally_leave':{var n2=String(ev.name||'');G.party=G.party.filter(function(n){return n!==n2});return n2+' 離開隊伍'}
+ case'battle':{if(G.in||G.dead)throw new Error('現在不能開戰');var foes=[];(Array.isArray(ev.enemies)?ev.enemies:[]).forEach(function(e){var k=String(e.k||e.kind||e.name||'碼頭混混'),n=clamp(parseInt(e.n,10)||1,1,4);for(var i=0;i<n&&foes.length<5;i++)foes.push(k)});
+  if(!foes.length)foes=['碼頭混混','碼頭混混'];startBattle({type:'sf',foes:foes,ctx:'sf',where:String(ev.where||'').slice(0,30),why:String(ev.why||'').slice(0,40)});return'戰鬥開始'}
+ default:throw new Error('未知類型 '+t)}}
+function parseLoose(txt){txt=String(txt||'').trim().replace(/^```\s*minos\s*/i,'').replace(/```\s*$/,'').trim();
+ try{return JSON.parse(txt)}catch(e){}try{return JSON.parse(txt.replace(/,\s*([}\]])/g,'$1').replace(/[“”]/g,'"'))}catch(e){}
+ var m=txt.match(/\{[\s\S]*\}/);if(m){try{return JSON.parse(m[0].replace(/,\s*([}\]])/g,'$1'))}catch(e){}}return null}
+function ingest(text){if(!G.started)return{status:'nosave',msg:'手繩尚未啟用'};
+ var h=djb(String(text))+':'+String(text).length;if(G.processed.indexOf(h)>=0)return{status:'done',msg:'已處理過'};
+ var o=parseLoose(text);if(!o)return{status:'error',msg:'看不懂這段資料'};
+ var evs=Array.isArray(o)?o:(o.events||(o.type?[o]:[]));var done=[],bad=[];
+ evs.forEach(function(ev){try{var r=apply(ev);if(r)done.push(r)}catch(x){bad.push(String(x.message||x))}});
+ G.processed.push(h);if(G.processed.length>200)G.processed.shift();persist();render();
+ var msg=done.join('；')+(bad.length?'（略過：'+bad.join('、')+'）':'');if(msg)toast('手繩更新：'+msg);return{status:'done',msg:msg}}
+
+// ===== 與載入器溝通 =====
+function post(m){if(P)try{P.postMessage(Object.assign({lt:1},m),'*')}catch(e){}}
+function compact(){var o={'位置':G.in?'迷宮：'+FL[G.f].n:LOC[G.loc],'等級':G.lv,'生命':G.hp+'/'+mhp(),'銀幣':G.pts,'燈油':G.oil,'攻擊強化':(G.ua|0),'防禦強化':(G.ud|0)};
+ var it={};['potion','fire','water','thread'].forEach(function(k){if(G.items[k])it[ITEM[k].n]=G.items[k]});if(Object.keys(it).length)o['道具']=it;
+ o['隊伍']=partyList().map(function(p){return{'名':p.name,'風格':p.style,'好感':BOND[p.bond],'攻強':(p.ua|0),'防強':(p.ud|0),'狀態':p.state==='ok'?'正常':p.state==='injured'?'重傷':'死亡'}});
+ var dead=G.roster.filter(function(r){return r.state==='dead'});if(dead.length)o['已死亡']=dead.map(function(p){return p.name});
+ if(G.bound.length)o['已繫結樓層']=G.bound.map(function(f){return FL[f].n});
+ o['技能']=learned();o['手稿']=G.pages.length+'/5';if(G.ending)o['結局']=G.ending==='king'?'王命（已殺死阿斯忒里翁）':'名字（阿斯忒里翁未死，迷宮已停）';
+ if(G.notes.length)o['新事件']=G.notes.slice();if(G.dead)o['狀態']='全隊覆沒，本局結束';return o}
+function tailFor(){var t='\n（以上是線結手繩資料：數值以此為準，不要自行計算。每回合都要有時空列、正文、2到4個行動按鈕、狀態欄。';
+
+ if(G.ending==='king')t+='玩家已達成「王命」結局：阿斯忒里翁已死、迷宮停止。請接寫回地面向宰相回報的場面與餘波；之後只寫地面劇情，不再有迷宮探索。';
+ if(G.ending==='name')t+='玩家已達成「名字」結局：他違抗王命，以名字讓迷宮停下，阿斯忒里翁沒有死。請接寫回地面後面對宰相與王宮的場面與後果；之後只寫地面劇情，不再有迷宮探索。';
+ if(G.dead)return t+'玩家已全隊覆沒，請寫出結局，不再提供行動按鈕。）';
+ if(G.battle&&G.battle.pending)return t+'戰鬥正在手繩上進行，等玩家送來【戰鬥結果】再接寫。）';
+ t+=G.ending?'現在在地面「'+LOC[G.loc]+'」，只寫地面的劇情。迷宮已經停止運作，不要讓玩家再進入迷宮。':'現在在地面「'+LOC[G.loc]+'」，只寫地面的劇情。迷宮的探索與戰鬥都由手繩處理，玩家要下迷宮時，請他自己在手繩按「進入迷宮」（線之階在王宮・線之館），不要寫玩家已經進入迷宮。';
+ t+='如果玩家這次送來的是【探索紀錄】：請接寫玩家循線之階回到地面的場面，描寫身體狀態、燈油與同伴的反應，紀錄裡的內容與數字以手繩為準，不要改動，不要編造新的敵人、寶物或樓層；手稿的內容可以讓角色讀到並討論。結尾回到地面劇情的行動按鈕。';
+ t+='如果是【戰鬥結果】：只寫戰後，不重演、不改結果。';
+ t+='敵人撲上來時，正文停在開打前，可以用 ```minos 程式碼區塊輸出 battle 事件，不可自己把戰鬥寫完。買賣、補給與裝備強化只能由玩家在手繩操作，不可代寫。）';return t}
+function arm(){if(!G.started){post({t:'arm',off:true});post({t:'pre',obj:compact(),tail:tailFor()});return}if(G.in&&!G.dead){post({t:'arm',off:true});return}post({t:'arm',obj:compact(),tail:tailFor()})}
+var FORM=null;
+function formFill(t){if(G.started||!t)return;var m=String(t).match(/你的名字[：:]\s*([^\n]+)/);if(!m)return;var nm=m[1].trim().slice(0,12);if(!nm||FORM===nm)return;FORM=nm;G.name=nm;var el=$('su-name');if(el&&!el.value)el.value=nm;toast('已帶入開局表單的名字：'+nm)}
+window.addEventListener('message',function(e){var d=e.data;if(!P||e.source!==P||!d||d.lt!==1)return;
+ if(d.t==='events'){var r=ingest(d.text);if(r.status!=='nosave'&&r.msg){String(r.msg).split(/[；;]/).forEach(function(x){x=x.trim();if(x&&ST.evs.indexOf(x)<0)ST.evs.push(x)});if(ST.evs.length>6)ST.evs=ST.evs.slice(-6);if(TAB==='story')render()}post({t:'ingested',id:d.id,status:r.status,msg:r.msg})}
+ else if(d.t==='form')formFill(d.text);
+ else if(d.t==='consumed'){if(G.notes.length){G.notes=[];persist()}}
+ else if(d.t==='fillres'){toast(d.s);if(/找不到/.test(d.s||'')){ST.busy=false;if(TAB==='story')render()}}
+ else if(d.t==='story')storyPush(d);
+ else if(d.t==='busy'){ST.busy=!!d.on;if(TAB==='story'){var v=$('view'),k=v.scrollTop;render();v.scrollTop=k}}});
+
+// ===== UI 基礎 =====
+var TAB='story',dots={},ST={blocks:[],busy:false,id:'',evs:[],res:'',go:null},STdraft='';
+var TABS=[['story','劇情'],['dg','迷宮'],['stat','狀態'],['shop','商店'],['sys','⚙']];
+function tabDot(k){if(k!==TAB)dots[k]=1}
+function toast(t){var el=$('toast');el.textContent=t;el.classList.add('on');clearTimeout(toast._t);toast._t=setTimeout(function(){el.classList.remove('on')},2600)}
+function setTab(k){TAB=k;delete dots[k];if(k!=='dg')DGMODE=null;render();$('view').scrollTop=0}
+function chips(){if(!G.started){$('chips').innerHTML='<span class="chip">尚未啟用</span>';return}
+ var c='<span class="chip hp">生命 '+G.hp+'/'+mhp()+'</span><span class="chip pt">銀幣 '+G.pts+'</span><span class="chip">Lv.'+G.lv+'</span><span class="chip'+(G.oil<=3?' bad':' lo')+'">燈油 '+G.oil+'</span>';
+ c+='<span class="chip">'+(G.in?FL[G.f].n:LOC[G.loc])+'</span>';if(G.dead)c='<span class="chip bad">本局結束</span>'+c;$('chips').innerHTML=c}
+function avatarHtml(p){var ch=esc((p&&p.name||'?').slice(0,1));return'<div class="av">'+ch+'</div>'}
+// ===== 劇情頁 =====
+function storyHtml(){var h='<div class="sv">';
+ if(!G.in)h+='<figure class="s-pic"><img src="'+IMG_BASE+'loc/mn_loc_'+esc(G.loc)+'.webp" alt="" onerror="this.parentNode.remove()"></figure>';
+ if(!ST.blocks.length)h+='<div class="card mut">這裡會顯示聊天裡最新一則 AI 回覆。送出你的行動後，等一下就會出現。<br>（也可以隨時按右上「回聊天」用原本的畫面。）</div>';
+ var btns=[];
+ ST.blocks.forEach(function(b,i){
+  if(b.k==='st')h+='<div class="s-st">'+esc(b.t)+'</div>';
+  else if(b.k==='d')h+='<div class="s-d">'+esc(b.t).replace(/^([^\s：:「」『』]{1,10})([：:])/,'<b>$1</b>$2').replace(/\n/g,'<br>')+'</div>';
+  else if(b.k==='p')h+='<p class="s-p">'+esc(b.t).replace(/\n/g,'<br>')+'</p>';
+  else if(b.k==='hr')h+='<div class="s-hr"></div>';
+  else if(b.k==='col')h+='<details class="s-col"><summary>'+esc(b.h||'詳情')+'</summary><div>'+esc(b.t)+'</div></details>';
+  else if(b.k==='btn')btns.push([i,b])});
+ ST.evs.forEach(function(x){h+='<div class="s-ev">🧵 '+esc(x)+'</div>'});
+ if(ST.go&&!ST.busy&&!BT)h+='<button class="btn amb wide" data-tab="'+ST.go.tab+'" style="min-height:48px">'+ST.go.label+'</button>';
+ if(BT)h+='<button class="btn amb wide" data-tab="dg" style="min-height:52px;font-size:16px">⚔ 進入戰鬥</button>';
+ if(G.in&&!BT)h+='<div class="card" style="border-color:#7a6430;margin-top:8px"><b style="color:var(--amb)">🧭 你在迷宮裡</b><div class="mut">探索與戰鬥都在「迷宮」頁進行，離開迷宮時，這趟的紀錄會一次送給 AI。</div><button class="btn amb wide" data-tab="dg">回到迷宮</button></div>';
+
+ if(G.ending&&!G.in&&!BT)h+='<div class="card" style="border-color:#7a6430"><b style="color:var(--amb)">'+(G.ending==='king'?'結局：王命':'結局：名字')+'</b><div class="mut">迷宮已經停止運作，故事還能在地面繼續。想重玩可以重新開始。</div><button class="btn wide" data-act="reset">重新開始</button></div>';
+ if(ST.busy)h+='<div class="s-busy">⏳ AI 回覆中…</div>';
+ if(btns.length&&!ST.busy&&!BT&&!G.in&&!G.dead)h+='<div class="s-opts">'+btns.map(function(x){return'<button class="btn" data-act="storyGo" data-arg="'+x[0]+'">'+esc(x[1].t)+'</button>'}).join('')+'</div>';
+ return h+'</div>'}
+function sbarHtml(){if(BT)return'<div class="mut">戰鬥中：打完後結果會自動送回劇情。</div>';
+ if(G.in)return'<div class="mut">🧭 迷宮探索中，離開迷宮後才能和 AI 對話。</div>';
+ if(G.dead)return'<div class="mut">本局已結束。要重玩請到 ⚙ 重新開始。</div>';
+ var lo='<div class="locs">'+Object.keys(LOC).map(function(k){return'<button class="btn'+(G.loc===k?' cur':'')+'" data-act="goLoc" data-arg="'+k+'"'+(ST.busy?' disabled':'')+'>'+LOC[k]+'</button>'}).join('')+'</div>';
+ var en=(G.loc==='guild'&&!G.ending)?'<button class="btn amb wide" data-act="enterAsk"'+(ST.busy?' disabled':'')+' style="margin:0 0 8px">🌀 進入迷宮（線之階）</button>':'';
+ return lo+en+'<div class="s-bar"><textarea id="s-in" placeholder="寫下你想做的事、想說的話…（Shift+Enter 送出）">'+esc(STdraft)+'</textarea><button class="btn amb" data-act="storySend"'+(ST.busy?' disabled':'')+'>送出</button></div>'}
+function bindStory(){var t=$('s-in');if(t){t.oninput=function(){STdraft=t.value};t.onkeydown=function(e){if(e.key==='Enter'&&(e.ctrlKey||e.metaKey||e.shiftKey)&&!e.isComposing){e.preventDefault();ACT.storySend()}}}}
+function storyPush(d){ST.blocks=(d.blocks||[]).map(function(b){if(b.k!=='btn')return b;var t=String(b.t||'').split('\n')[0].replace(/[<>]/g,'').trim().slice(0,40),s2=String(b.s||'').trim();if(!s2||s2.length>120||/[<>]|hc-|title=|bg=/.test(s2))s2=t;return{k:'btn',t:t,s:s2}}).filter(function(b){return b.k!=='btn'||b.t});ST.id=d.id;ST.busy=!!d.busy;
+ if(TAB==='story'){var v=$('view'),keep=v.scrollTop;render();v.scrollTop=keep}else{tabDot('story');render()}}
+function storySay(text,free){text=(text||'').trim();if(!text)return;if(ST.busy){toast('AI 還在回覆，請稍等');return}
+ if(G.dead){toast('本局已結束');return}if(!G.started){toast('請先啟用手繩');return}if(G.in){toast('迷宮中不能和 AI 對話');return}
+ if(!free){G.idle++;if(G.idle>=16&&!BT){G.idle=0;note('迷宮躁動，魔物從線之階溢出，湧向克諾索斯港');startBattle({type:'sf',foes:['根鼠','根鼠','苔蟲'],ctx:'sf',where:'線之階與港口之間',why:'迷宮溢潮'});toast('⚠ 迷宮溢潮！魔物衝出來了');return}}
+ ST.evs=[];ST.res='';ST.go=null;ST.busy=true;persist();post({t:'fill',text:text,send:true,keep:true});if(!P){toast('（測試模式）'+text);ST.busy=false}if(TAB==='story')render()}
+// ===== 其他分頁 =====
+function statHtml(){var h='';if(G.dead)h+='<div class="card dead">全隊覆沒，這一局已經結束。</div>';
+ h+='<h3>你</h3><div class="card"><div class="row"><span>名字</span><b>'+esc(G.name)+'</b></div><div class="row"><span>等級</span><span>Lv.'+G.lv+'（經驗 '+G.xp+'/'+30*G.lv+'）</span></div><div class="row"><span>生命</span><span>'+G.hp+' / '+mhp()+'</span></div><div class="bar"><i style="width:'+Math.round(G.hp/mhp()*100)+'%"></i></div><div class="row"><span>銀幣</span><b style="color:var(--amb)">'+G.pts+'</b></div><div class="row"><span>燈油</span><span>'+G.oil+' / 30</span></div><div class="row"><span>攻擊強化</span><span>Lv.'+(G.ua|0)+'（傷害 '+pdmg()+'）</span></div><div class="row"><span>防禦強化</span><span>Lv.'+(G.ud|0)+'（減傷 '+parmor()+'）</span></div></div>';
+ h+='<h3>道具</h3><div class="card">';var any=0;['potion','fire','water','thread'].forEach(function(k){if(G.items[k]){any=1;h+='<div class="row"><span>'+ITEM[k].n+'</span><span>×'+G.items[k]+'</span></div>'}});if(!any)h+='<div class="mut">沒有道具。</div>';h+='</div>';
+ h+='<h3>技能（全員通用，等級解鎖）</h3><div class="card">'+SKO.map(function(k){var s2=SK[k],ok=G.lv>=s2.lv;return'<div class="row"><span>'+(ok?'':'🔒 ')+s2.n+'（'+s2.sp+'）</span><span>'+(ok?s2.d:'Lv.'+s2.lv+' 解鎖')+'</span></div>'}).join('')+'</div>';
+ h+='<h3>隊伍（'+G.party.length+'/3）</h3><div class="card">';var pl=partyList();if(!pl.length)h+='<div class="mut">目前一個人行動。在劇情裡邀請同伴，對方答應後會出現在這裡。</div>';
+ pl.forEach(function(p){h+=allyRow(p)});h+='</div>';
+ var others=G.roster.filter(function(r){return G.party.indexOf(r.name)<0});if(others.length){h+='<h3>認識的人</h3><div class="card">';others.forEach(function(p){h+=allyRow(p)});h+='</div>'}
+ h+='<h3>線與手稿</h3><div class="card"><div class="row"><span>已繫結樓層</span><span>'+(G.bound.length?G.bound.map(function(f){return FL[f].n}).join('、'):'尚無')+'</span></div><div class="row"><span>手稿殘頁</span><span>'+G.pages.length+' / 5</span></div>'+G.pages.slice().sort().map(function(n){return'<div class="log">'+esc(PAGES[n-1])+'</div>'}).join('')+'</div>';
+ return h}
+function allyRow(p){return'<div class="ally">'+avatarHtml(p)+'<div style="flex:1"><b>'+esc(p.name)+'</b><span class="tag">'+esc(p.style)+'</span><span class="tag">'+BOND[p.bond]+'</span><span class="tag '+(p.state==='ok'?'ok':'bad')+'">'+(p.state==='ok'?'正常':p.state==='injured'?'重傷':'死亡')+'</span><div class="mut">生命 '+p.hp+'/'+allyMax(p)+'｜攻擊強化 '+(p.ua|0)+'｜防禦強化 '+(p.ud|0)+'</div></div></div>'}
+function shopHtml(){if(G.in)return'<div class="card mut">你在迷宮裡，商店只能在地面使用。</div>';var h='';
+ if(G.loc==='market'){h+='<h3>市集街・補給品</h3><div class="card">'+shopRow('橄欖藥酒（持有 '+G.items.potion+'）',ITEM.potion.note,25,'potion')+shopRow('火油瓶（持有 '+G.items.fire+'）',ITEM.fire.note,35,'fire')+shopRow('線團（持有 '+(G.items.thread||0)+'）',ITEM.thread.note,30,'thread')+shopRow('燈油（現有 '+G.oil+'）',ITEM.oil.note,15,'oil')+'</div><div class="mut">價格已含市集街的溢潮加成。買了什麼，AI 會在你下次說話時知道。</div>'}
+ else if(G.loc==='smith'){h+='<h3>工匠區・強化</h3><div class="mut">武器和護具不更換，花銀幣強化。每次攻擊 +3 傷害、防禦 +1 減傷，每項最高 Lv.'+UPMAX+'。</div>';
+  h+='<div class="card">'+upRow(-1)+G.roster.map(function(r,i){return r.state==='dead'?'':upRow(i)}).join('')+'</div>'}
+ else h+='<div class="card mut">這裡沒有商店。補給品在「'+LOC.market+'」，裝備強化在「'+LOC.smith+'」。</div>';
+ return h}
+function upRow(i){var t=upTarget(i),nm=i<0?(G.name||'你'):t.name,a=t.ua|0,d=t.ud|0,h='<div style="padding:6px 0;border-top:1px solid var(--line)"><b>'+esc(nm)+'</b>'+(i>=0?'<span class="tag">'+esc(t.style)+'</span>':'')+'<div class="mut">攻擊 Lv.'+a+'/'+UPMAX+'　防禦 Lv.'+d+'/'+UPMAX+'</div><div class="btns">';
+ h+=a>=UPMAX?'<button class="btn" disabled>攻擊已滿</button>':'<button class="btn" data-m="upg" data-a="'+i+':a" '+(G.pts>=upCost('a',a)?'':'disabled')+'>強化攻擊 '+upCost('a',a)+'</button>';
+ h+=d>=UPMAX?'<button class="btn" disabled>防禦已滿</button>':'<button class="btn" data-m="upg" data-a="'+i+':d" '+(G.pts>=upCost('d',d)?'':'disabled')+'>強化防禦 '+upCost('d',d)+'</button>';
+ return h+'</div></div>'}
+function shopRow(n,sub,c,k){return'<div class="shop-item"><div class="nm">'+esc(n)+'<small>'+esc(sub)+'</small></div><span class="price">'+c+'</span><button class="btn" data-m="buy" data-a="'+k+'" '+(G.pts>=c?'':'disabled')+'>買</button></div>'}
+function sysHtml(){return'<h3>存檔</h3><div class="card"><div class="mut">存檔放在這台裝置的這個瀏覽器。換裝置前先匯出存檔碼，到新裝置匯入。</div><textarea id="io" placeholder="存檔碼"></textarea><div class="btns"><button class="btn" data-act="exp">匯出</button><button class="btn" data-act="imp">匯入</button></div></div>'+
+ '<h3>回地面時</h3><div class="card"><div class="mut">回到地面時，探索紀錄要自動送給 AI，還是只填進輸入框讓你自己送？</div><button class="btn wide'+(G.auto?' amb':'')+'" data-act="autoSend">'+(G.auto?'自動送出（點一下改成手動）':'手動送出（點一下改成自動）')+'</button></div>'+
+ '<h3>手動貼上 AI 區塊</h3><div class="card"><div class="mut">如果手繩沒自動讀到 AI 回覆裡的 minos 區塊，把那段複製貼在這裡。</div><textarea id="man"></textarea><button class="btn wide" data-act="manual">套用</button></div>'+
+ '<h3>說明</h3><div class="card"><button class="btn wide" data-act="tour">重看手繩說明</button></div>'+
+ '<h3>測試模式</h3><div class="card"><div class="mut">給作者測試：每按一次，銀幣 +500、等級 +1。</div><button class="btn wide" data-act="cheat">測試加成</button></div>'+
+ '<h3>重新開始</h3><div class="card"><div class="mut">清除這台裝置上的進度。聊天紀錄不會被刪掉，建議同時開一個新對話。</div><button class="btn red wide" data-act="reset">清除進度，重新開始</button></div><div class="mut">手繩版本 '+VER+'</div>'}
+function setupHtml(){return'<h3>手繩啟用</h3><div class="card"><div class="mut">阿里阿德涅替你扣上紅色的線結手繩，每一個結，記錄你的一項狀態。</div><label>你的名字</label><input id="su-name" maxlength="12" placeholder="跟開局表單填的一樣" value="'+esc(G.name)+'"></div><button class="btn amb wide" data-act="start">啟用手繩</button>'}
+// ===== 迷宮頁 =====
+function entryHtml(){var h='<h3>線之階</h3><div class="card"><div class="mut">米諾斯迷宮的入口在王宮・線之館後方的下沉庭院。進入迷宮後，你會用第一人稱自己走路、開門、戰鬥；這段期間不會和 AI 對話，離開時才把探索紀錄一次交給它。</div>';
+ h+='<div class="row"><span>已繫結樓層</span><span>'+(G.bound.length?G.bound.map(function(f){return'第'+f+'層'}).join('、'):'尚無')+'</span></div><div class="row"><span>燈油</span><span>'+G.oil+'</span></div>';
+ if(G.ending)h+='<div class="mut" style="margin-top:6px">迷宮已經停止運作。</div>';else if(G.loc==='guild'&&!G.dead)h+='<button class="btn amb wide" data-act="enterAsk">🌀 進入迷宮</button>';else h+='<div class="mut" style="margin-top:6px">先到「'+LOC.guild+'」，才能走下線之階。</div>';
+ return h+'</div>'}
+function dgShell(){return'<div><div class="vw"><canvas id="dv" width="480" height="300"></canvas><div id="en"></div></div><div class="drow"><div id="party"></div><canvas id="dm" width="132" height="132"></canvas></div><div id="dstat"></div><div id="ctrl"></div><div id="dlog"></div></div>'}
+function renderDg(v){var want=(G.in||BT)?'shell':'entry';if(DGMODE!==want){v.innerHTML=want==='shell'?dgShell():entryHtml();DGMODE=want;if($('ctrl'))$('ctrl')._h=null}if(want==='shell')dgUpdate()}
+function dgUpdate(){if(!$('party'))return;var h='';
+ if(BT)BT.party.forEach(function(p){h+='<div class="pc'+(p.hp<=0?' down':'')+(p.def?' def':'')+'"><b>'+esc(p.name)+' <small>'+esc(p.style)+'</small></b><small>HP '+p.hp+'/'+p.max+(p.side==='p'?'｜氣力 '+G.sp+'/3':'｜氣力 '+p.sp+'/3')+(BT.buff&&BT.buff.r>0?' ⬆':'')+'</small><div class="hb"><i style="width:'+(p.hp/p.max*100)+'%"></i></div></div>'});
+ else{h+='<div class="pc"><b>'+esc(G.name||'你')+' <small>Lv.'+G.lv+'</small></b><small>HP '+G.hp+'/'+mhp()+'</small><div class="hb"><i style="width:'+(G.hp/mhp()*100)+'%"></i></div></div>';
+  partyList().forEach(function(a){if(a.state==='dead')return;h+='<div class="pc'+(a.state==='injured'?' down':'')+'"><b>'+esc(a.name)+' <small>'+esc(a.style)+(a.state==='injured'?'・重傷':'')+'</small></b><small>HP '+a.hp+'/'+allyMax(a)+'</small><div class="hb"><i style="width:'+(a.hp/allyMax(a)*100)+'%"></i></div></div>'})}
+ $('party').innerHTML=h;
+ $('dstat').innerHTML=(G.in?'<span>'+FL[G.f].n+'</span>':'<span>地面：'+(BT&&BT.cfg.where?esc(BT.cfg.where):LOC[G.loc])+'</span>')+'<span>銀幣 '+G.pts+'</span><span class="'+(G.oil<=3?'warn':'')+'">燈油 '+G.oil+(isDark()?'（黑暗）':'')+'</span><span>鑰匙 '+G.keys+'</span><span>手稿 '+G.pages.length+'/5</span><span>攻+'+(G.ua|0)+' 防+'+(G.ud|0)+'</span>';
+ var lg=BT?BT.log:DL;$('dlog').innerHTML=lg.slice(0,8).map(function(x){return'<div>'+esc(x)+'</div>'}).join('');
+ var c='';
+ if(BT){var en='';BT.foes.forEach(function(f,i){var fb=spriteUrl(f.shape,f.col);en+='<div class="ec'+(f.hp<=0?' dead':'')+(f.boss?' boss':'')+(BT.mode==='tgt'&&f.hp>0?' sel':'')+'" data-tgt="'+i+'"><img src="'+IMG_BASE+'en/mn_e_'+f.img+'.webp" data-fb="'+fb+'" alt=""><div>'+esc(f.name)+'</div><div class="hb"><i style="width:'+(f.hp/f.max*100)+'%"></i></div></div>'});$('en').innerHTML=en;
+  if(BT.over)c='<div class="cmd"><button class="btn wide" disabled>……</button></div>';
+  else if(BT.mode==='busy')c='<div class="cmd"><button class="btn wide" disabled>⏳ 行動中…</button></div>';
+  else if(BT.mode==='tgt')c='<div class="cmd"><button class="btn wide amb" disabled>點選要攻擊的敵人</button><button class="btn wide" data-c="cancel">取消</button></div>';
+  else c='<div class="cmd"><button class="btn" data-c="atk">⚔ 攻擊</button><button class="btn" data-c="skill">✨ 技能</button><button class="btn" data-c="def">🛡 防禦</button><button class="btn" data-c="item">🎒 道具</button><button class="btn red" data-c="flee">🏃 逃跑</button></div>'}
+ else{$('en').innerHTML='';c='<div class="pad"><button class="btn" data-a="tl">↰ 左轉</button><button class="btn" data-a="fwd">↑ 前進</button><button class="btn" data-a="tr">↱ 右轉</button><button class="btn" data-a="sl">← 左移</button><button class="btn" data-a="back">↓ 後退</button><button class="btn" data-a="sr">→ 右移</button>';
+  if(onSpring())c+='<button class="btn amb wide" data-c="spring">🕯 線之泉（休整／傳送／回地面）</button>';
+  if(G.items.thread>0)c+='<button class="btn wide" data-m="thread">🧶 線團（回地面）×'+G.items.thread+'</button>';
+  if(onStairs())c+='<button class="btn amb wide" data-c="descend">▼ 走下階梯</button>';c+='</div>'}
+ if($('ctrl')._h!==c){$('ctrl')._h=c;$('ctrl').innerHTML=c}}
+function upd(){chips();if(TAB==='dg'&&DGMODE==='shell')dgUpdate()}
+document.addEventListener('pointerdown',function(e){var b=e.target.closest('[data-a]');if(b&&!b.dataset.m&&TAB==='dg'){e.preventDefault();act(b.dataset.a)}});
+document.addEventListener('click',function(e){var c=e.target.closest('[data-c]');
+ if(c){var k=c.dataset.c;if(k==='spring')springMenu();else if(k==='descend')modal('<h3>走下階梯？</h3><button class="btn amb" data-m="descend">下樓</button><button class="btn" data-m="close">再等等</button>');
+  else if(k==='cancel'){BT.mode='cmd';BT.pending=null;upd()}else cmd(k);return}
+ var t=e.target.closest('[data-tgt]');if(t&&BT&&BT.mode==='tgt'){var i=+t.dataset.tgt;if(BT.foes[i].hp>0)cmd(BT.pending,i)}});
+addEventListener('keydown',function(e){if($('modal').classList.contains('on')||BT||TAB!=='dg'||!G.in)return;var m={ArrowUp:'fwd',w:'fwd',W:'fwd',ArrowDown:'back',s:'back',S:'back',a:'sl',A:'sl',d:'sr',D:'sr',q:'tl',Q:'tl',ArrowLeft:'tl',e:'tr',E:'tr',ArrowRight:'tr'}[e.key];if(m){e.preventDefault();act(m)}});
+document.addEventListener('error',function(e){var im=e.target;if(im&&im.tagName==='IMG'&&im.dataset&&im.dataset.fb&&im.src.indexOf('data:')!==0){im.classList.add('px');im.src=im.dataset.fb}},true);
+
+function render(){chips();
+ $('tabs').innerHTML=G.started?TABS.map(function(t){return'<button data-tab="'+t[0]+'" class="'+(t[0]===TAB?'on':'')+(dots[t[0]]?' dot':'')+'">'+t[1]+'</button>'}).join(''):'';
+ var v=$('view'),sb=$('sbar'),sh=(G.started&&TAB==='story')?sbarHtml():'';if(sb._h!==sh){sb._h=sh;sb.innerHTML=sh}
+ if(!G.started){v.innerHTML=setupHtml();return}
+ if(TAB==='dg'){renderDg(v);return}DGMODE=null;
+ v.innerHTML=({story:storyHtml,stat:statHtml,shop:shopHtml,sys:sysHtml}[TAB]||storyHtml)();
+ if(TAB==='story')bindStory()}
+document.addEventListener('click',function(e){var b=e.target.closest('[data-tab]');if(b){setTab(b.dataset.tab);return}
+ var a=e.target.closest('[data-act]');if(!a)return;var f=ACT[a.dataset.act];if(f)f(a.dataset.arg,a)});
+var ACT={
+ start:function(){var nm=($('su-name').value||'').trim();if(!nm){toast('請填你的名字');return}G.name=nm;G.started=true;persist();post({t:'hint',s:''});TAB='story';render();showTour()},
+ goLoc:function(k){if(ST.busy||!LOC[k])return;G.loc=k;persist();storySay('我前往'+LOC[k]+'。')},
+ storyGo:function(i){var b=ST.blocks[+i];if(b)storySay(b.s||b.t)},
+ storySend:function(){var t=$('s-in'),v=t?t.value:STdraft;STdraft='';storySay(v)},
+ enterAsk:function(){if(G.ending)return;var fl=startFloors(),b='';fl.forEach(function(f){b+='<button class="btn'+(f===fl[fl.length-1]?' amb':'')+'" data-m="enter" data-a="'+f+'">'+(f===1?'從第1層走下去':'直接到 第'+f+'層・'+FL[f].n)+'</button>'});
+  modal('<div data-lock><h3>走下線之階？</h3><div class="mut">進入迷宮後不會和 AI 對話，離開時才送出探索紀錄。燈油 '+G.oil+'。'+(G.oil<5?'<br>⚠ 燈油偏少，建議先到商店買。':'')+'<br>已繫結的樓層，可以循線直接到下一層的起點。</div>'+b+'<button class="btn" data-m="close">再準備一下</button></div>')},
+ autoSend:function(){G.auto=!G.auto;persist();render()},
+ cheat:function(){G.pts+=500;G.lv++;G.hp=mhp();persist();render();toast('銀幣 +500、等級 '+G.lv)},
+ exp:function(){$('io').value=btoa(unescape(encodeURIComponent(JSON.stringify(G))));$('io').select();toast('已匯出，請複製存檔碼')},
+ imp:function(){try{var o=JSON.parse(decodeURIComponent(escape(atob($('io').value.trim()))));if(!o||o.v!==1)throw 0;G=o;BT=null;persist();if(G.in){CUR=makeCur(G.f);snapView()}render();toast('匯入完成')}catch(e){toast('存檔碼不正確')}},
+ manual:function(){var r=ingest($('man').value);toast(r.status==='done'?'已套用':r.msg)},
+ tour:function(){showTour()},
+ reset:function(){modal('<div data-lock><h3>確定要重新開始？</h3><div class="mut">這台裝置上的進度會全部清除。</div><div class="btns"><button class="btn red" data-act="doReset">清除</button><button class="btn" data-m="close">取消</button></div></div>')},
+ doReset:function(){G=fresh();BT=null;CUR=null;FD={};DL=[];closeModal();persist();TAB='story';DGMODE=null;render()},
+ tourNext:function(i){showTour(+i)},tourEnd:function(){G.tourDone=true;persist();closeModal()}};
+var TOUR=[['🧵 線結手繩','這是你的終端。上方隨時顯示生命、銀幣、等級、燈油和所在位置。數值都由手繩記錄，AI 不會改。'],['地面：劇情','在「劇情」頁和 AI 對話，用下方按鈕前往各個地點。市集街買藥酒、火油瓶、燈油；工匠區強化每個人的攻擊與防禦（裝備不更換）。'],['迷宮：自己走','在王宮・線之館按「進入迷宮」，就會進入第一人稱的迷宮。這期間不會和 AI 對話。走到怪物身上就開打；走到藍色的線之泉可以休整、傳送、回地面。'],['戰鬥','回合選單：攻擊、技能、防禦、道具、逃跑。技能耗氣力、依等級解鎖，每回合恢復 1 點氣力；同伴有自己的氣力，會自己行動、自己施放技能。守關者戰鬥時青銅門會關上，逃不掉。'],['離開迷宮','回地面時，這趟的探索紀錄會一次送給 AI，由它接寫回到地面的場面。若全隊覆沒，本局結束。'],['燈油與泉水','燈油每走幾步會消耗，用完就進入黑暗：看不見地圖、戰力下降。在泉邊休整會讓這層的魔物重新長出來。']];
+function showTour(i){i=i||0;var t=TOUR[i];modal('<div data-lock><h4>'+t[0]+'（'+(i+1)+'/'+TOUR.length+'）</h4><div>'+t[1]+'</div><div class="btns">'+(i<TOUR.length-1?'<button class="btn amb" data-act="tourNext" data-arg="'+(i+1)+'">下一步</button><button class="btn" data-act="tourEnd">略過</button>':'<button class="btn amb" data-act="tourEnd">開始</button>')+'</div></div>')}
+
+// ===== 精靈與第一人稱畫面 =====
+function mk(fn){var c=document.createElement('canvas');c.width=c.height=64;fn(c.getContext('2d'));return c}
+function eye(g,x,y,r){g.fillStyle='#fff';g.beginPath();g.arc(x,y,r,0,7);g.fill();g.fillStyle='#111';g.beginPath();g.arc(x+1,y+1,r*.5,0,7);g.fill()}
+var DRAW={
+ blob:function(g,c){g.fillStyle=c;g.beginPath();g.moveTo(6,58);g.quadraticCurveTo(4,16,32,10);g.quadraticCurveTo(60,16,58,58);g.closePath();g.fill();g.strokeStyle='rgba(0,0,0,.6)';g.lineWidth=2;g.stroke();g.fillStyle='rgba(255,255,255,.3)';g.beginPath();g.ellipse(22,24,6,3.5,-.5,0,7);g.fill();eye(g,23,36,6);eye(g,41,36,6);g.strokeStyle='rgba(0,0,0,.7)';g.lineWidth=2.5;g.beginPath();g.arc(32,46,8,.15*Math.PI,.85*Math.PI);g.stroke()},
+ ghost:function(g,c){g.globalAlpha=.88;g.fillStyle=c;g.beginPath();g.moveTo(12,28);g.quadraticCurveTo(12,6,32,6);g.quadraticCurveTo(52,6,52,28);g.lineTo(52,58);g.lineTo(43,49);g.lineTo(32,58);g.lineTo(21,49);g.lineTo(12,58);g.closePath();g.fill();g.globalAlpha=1;g.fillStyle='#0a0a12';g.beginPath();g.ellipse(24,28,4,6,0,0,7);g.ellipse(40,28,4,6,0,0,7);g.fill();g.beginPath();g.ellipse(32,42,5,4,0,0,7);g.fill()},
+ quad:function(g,c){g.fillStyle=c;g.beginPath();g.ellipse(30,42,20,11,0,0,7);g.fill();g.beginPath();g.arc(50,34,9,0,7);g.fill();g.beginPath();g.moveTo(46,27);g.lineTo(49,17);g.lineTo(54,27);g.fill();g.fillRect(14,48,5,10);g.fillRect(26,48,5,10);g.fillRect(38,48,5,10);g.strokeStyle=c;g.lineWidth=3;g.beginPath();g.moveTo(10,40);g.quadraticCurveTo(2,30,6,22);g.stroke();g.fillStyle='#e04030';g.beginPath();g.arc(53,33,2.2,0,7);g.fill();g.fillStyle='#fff';g.fillRect(55,38,2,3)},
+ bug:function(g,c){g.fillStyle=c;g.beginPath();g.ellipse(32,38,20,15,0,0,7);g.fill();g.strokeStyle='rgba(0,0,0,.55)';g.lineWidth=2;g.beginPath();g.moveTo(32,24);g.lineTo(32,52);g.stroke();g.beginPath();g.arc(32,22,8,0,7);g.fill();g.stroke();g.strokeStyle=c;g.lineWidth=2.5;for(var i=0;i<3;i++){g.beginPath();g.moveTo(14,34+i*7);g.lineTo(5,40+i*8);g.moveTo(50,34+i*7);g.lineTo(59,40+i*8);g.stroke()}eye(g,28,21,3);eye(g,36,21,3)},
+ skel:function(g,c){g.strokeStyle=c;g.lineWidth=3;g.fillStyle=c;g.beginPath();g.arc(32,14,9,0,7);g.fill();g.fillStyle='#111';g.fillRect(27,12,4,5);g.fillRect(33,12,4,5);g.beginPath();g.moveTo(32,23);g.lineTo(32,44);g.stroke();for(var i=0;i<4;i++){g.beginPath();g.moveTo(22,28+i*5);g.lineTo(42,28+i*5);g.stroke()}g.beginPath();g.moveTo(32,44);g.lineTo(23,60);g.moveTo(32,44);g.lineTo(41,60);g.moveTo(22,28);g.lineTo(12,44);g.moveTo(42,28);g.lineTo(52,40);g.stroke()},
+ human:function(g,c){g.fillStyle='#d8b890';g.beginPath();g.arc(32,14,8,0,7);g.fill();g.fillStyle=c;g.fillRect(20,22,24,22);g.fillRect(22,44,8,14);g.fillRect(34,44,8,14);g.fillRect(12,24,8,18);g.fillRect(44,24,8,18);g.fillStyle='#1a1a1a';g.fillRect(28,12,2,2);g.fillRect(34,12,2,2)},
+ giant:function(g,c){g.fillStyle=c;g.fillRect(14,24,36,32);g.fillRect(22,6,20,18);g.fillRect(4,26,10,26);g.fillRect(50,26,10,26);g.fillRect(18,56,10,6);g.fillRect(36,56,10,6);g.fillStyle='#ffcf5a';g.fillRect(26,12,4,4);g.fillRect(34,12,4,4);g.strokeStyle='rgba(0,0,0,.5)';g.lineWidth=2;g.strokeRect(14,24,36,32);g.strokeRect(22,6,20,18)},
+ key:function(g){g.strokeStyle='#e8c24a';g.lineWidth=5;g.beginPath();g.arc(32,22,10,0,7);g.stroke();g.fillStyle='#e8c24a';g.fillRect(30,30,5,26);g.fillRect(35,44,9,4);g.fillRect(35,51,6,4)},
+ chest:function(g){g.fillStyle='#7a4a1e';g.fillRect(8,34,48,24);g.fillStyle='#945a26';g.beginPath();g.moveTo(8,36);g.quadraticCurveTo(32,12,56,36);g.closePath();g.fill();g.fillStyle='#d8a93a';g.fillRect(8,40,48,4);g.fillRect(27,38,10,12);g.fillStyle='#3a2410';g.fillRect(31,42,2,5);g.strokeStyle='#2a1808';g.lineWidth=2;g.strokeRect(8,34,48,24)},
+ page:function(g){g.fillStyle='#d8c8a0';g.fillRect(16,10,32,44);g.strokeStyle='#7a6a48';g.lineWidth=2;g.strokeRect(16,10,32,44);g.fillStyle='#7a6a48';for(var i=0;i<6;i++)g.fillRect(21,17+i*6,i%3===2?14:22,2);g.fillStyle='#a8302a';g.beginPath();g.arc(40,46,4,0,7);g.fill()},
+ spring:function(g){g.fillStyle='#2a3a48';g.beginPath();g.ellipse(32,46,26,10,0,0,7);g.fill();g.fillStyle='#4fa8d8';g.beginPath();g.ellipse(32,44,21,7,0,0,7);g.fill();g.fillStyle='rgba(200,240,255,.5)';g.beginPath();g.ellipse(26,42,8,2.5,0,0,7);g.fill();g.strokeStyle='#c8403a';g.lineWidth=2.5;g.beginPath();g.moveTo(32,44);g.bezierCurveTo(10,30,50,22,32,8);g.stroke()},
+ stairs:function(g){for(var i=0;i<5;i++){g.fillStyle='rgb('+(70-i*10)+','+(62-i*9)+','+(52-i*8)+')';g.fillRect(8+i*2,26+i*7,48-i*4,8)}g.strokeStyle='#e0b95a';g.lineWidth=2;g.strokeRect(8,26,48,36)}
+};
+var SPC={};function spr(shape,col){var k=shape+(col||'');return SPC[k]||(SPC[k]=mk(function(g){DRAW[shape](g,col)}))}
+function spriteUrl(shape,col){return spr(shape,col).toDataURL()}
+var SCALE={mon:.8,boss:1.05,chest:.6,key:.4,page:.45,spring:.6,stairs:.8};
+var cv=null,ctx=null,W=480,H=300,tmpC=document.createElement('canvas');tmpC.width=W;tmpC.height=H;var tmp=tmpC.getContext('2d'),zbuf=new Float32Array(W),FOV=.8,mini=null,mcv=null;
+var sh=function(r,g,b,f){return'rgb('+(Math.min(255,r*f)|0)+','+(Math.min(255,g*f)|0)+','+(Math.min(255,b*f)|0)+')'};var RD=Math.round;
+function brick(x,top,lh,wx,f,mx,my,side,wc){ctx.fillStyle=sh(wc[0]*.28,wc[1]*.28,wc[2]*.28,f);ctx.fillRect(x,RD(top),1,RD(lh));var rows=6,ch=lh/rows;
+ for(var i=0;i<rows;i++){var u=wx*3+((i&1)?.5:0),bj=Math.floor(u);if(u-bj<.06)continue;var h=((mx*374761393+my*668265263+bj*2246822519+i*3266489917+side*97)>>>0)%100/100,v=.82+h*.3;
+  ctx.fillStyle=sh(wc[0]*v,wc[1]*v,wc[2]*v,f*(side?.72:1));ctx.fillRect(x,RD(top+i*ch+ch*.07),1,Math.max(1,RD(ch*.86)))}}
+function doorDraw(x,top,lh,wx,f,side,dc){var k=f*(side?.75:1),dark=(wx*5)%1<.07;ctx.fillStyle=dark?sh(dc[0]*.35,dc[1]*.35,dc[2]*.35,k):sh(dc[0],dc[1],dc[2],k);ctx.fillRect(x,RD(top),1,RD(lh));
+ ctx.fillStyle=sh(52,52,58,k);ctx.fillRect(x,RD(top+lh*.16),1,Math.max(1,RD(lh*.06)));ctx.fillRect(x,RD(top+lh*.78),1,Math.max(1,RD(lh*.06)));
+ if(wx>.72&&wx<.8){ctx.fillStyle=sh(210,175,70,k);ctx.fillRect(x,RD(top+lh*.46),1,Math.max(1,RD(lh*.08)))}}
+function sprites(){var f=G.f,d=fd(f),o=[];
+ d.feats.forEach(function(ft){if(!feAlive(f,ft))return;var img=(ft.type==='mon'||ft.type==='boss')?spr(enemyStat(ft.foes[0]).shape,enemyStat(ft.foes[0]).col):spr(ft.type);o.push({x:ft.x,y:ft.y,img:img,sc:SCALE[ft.type],bob:ft.type==='mon'||ft.type==='boss'})});
+ o.push({x:1,y:1,img:spr('spring'),sc:SCALE.spring});if(!FL[f].boss||G.guard[f])o.push({x:d.boss.x,y:d.boss.y,img:spr('stairs'),sc:SCALE.stairs});return o}
+function renderScene(t){if(!G.in||!CUR){ctx.fillStyle='#0a0806';ctx.fillRect(0,0,W,H);var gg=ctx.createLinearGradient(0,0,0,H);gg.addColorStop(0,'#14100b');gg.addColorStop(1,'#0a0806');ctx.fillStyle=gg;ctx.fillRect(0,0,W,H);ctx.fillStyle='#8d8168';ctx.font='18px sans-serif';ctx.textAlign='center';ctx.fillText(BT&&BT.cfg.where?BT.cfg.where:LOC[G.loc],W/2,40);ctx.textAlign='start';
+  if(BT){ctx.fillStyle='rgba(0,0,0,.35)';ctx.fillRect(0,0,W,H)}if(flash>0){ctx.fillStyle='rgba(190,30,20,'+flash*.4+')';ctx.fillRect(0,0,W,H)}return}
+ var pal=PAL[G.f],flick=1+.05*Math.sin(t*.011)+.04*Math.sin(t*.027+1);
+ var gc=ctx.createLinearGradient(0,0,0,H/2);gc.addColorStop(0,pal.ce[0]);gc.addColorStop(1,pal.ce[1]);ctx.fillStyle=gc;ctx.fillRect(0,0,W,H/2);
+ var gf=ctx.createLinearGradient(0,H/2,0,H);gf.addColorStop(0,pal.fl[0]);gf.addColorStop(1,pal.fl[1]);ctx.fillStyle=gf;ctx.fillRect(0,H/2,W,H/2);
+ var dirX=Math.cos(ang),dirY=Math.sin(ang),plX=-dirY*FOV,plY=dirX*FOV,fk=isDark()?.9:.3;
+ for(var x=0;x<W;x++){var cam=2*x/W-1,rdx=dirX+plX*cam,rdy=dirY+plY*cam,mx=Math.floor(px),my=Math.floor(py),side=0,ddx=Math.abs(1/rdx),ddy=Math.abs(1/rdy),sx,sy,sdx,sdy;
+  if(rdx<0){sx=-1;sdx=(px-mx)*ddx}else{sx=1;sdx=(mx+1-px)*ddx}if(rdy<0){sy=-1;sdy=(py-my)*ddy}else{sy=1;sdy=(my+1-py)*ddy}
+  for(var n=0;n<40;n++){if(sdx<sdy){sdx+=ddx;mx+=sx;side=0}else{sdy+=ddy;my+=sy;side=1}var c=CUR[my]&&CUR[my][mx];if(c==='#'||c==='D'||c===undefined)break}
+  var perp=side===0?sdx-ddx:sdy-ddy;zbuf[x]=perp;var wx=side===0?py+perp*rdy:px+perp*rdx;wx-=Math.floor(wx);
+  var lh=H/Math.max(perp,.05),top=H/2-lh/2,f=Math.min(1.1,1.4/(1+fk*perp+.09*perp*perp))*flick;
+  if(CUR[my]&&CUR[my][mx]==='D')doorDraw(x,top,lh,wx,f,side,pal.door);else brick(x,top,lh,wx,f,mx,my,side,pal.w)}
+ var inv=1/(plX*dirY-dirX*plY);
+ var list=sprites().map(function(s){var rx=s.x+.5-px,ry=s.y+.5-py;return{s:s,tx:inv*(dirY*rx-dirX*ry),ty:inv*(-plY*rx+plX*ry)}}).filter(function(o){return o.ty>.15}).sort(function(a,b){return b.ty-a.ty});
+ list.forEach(function(o){var size=(H/o.ty)*o.s.sc,floorY=H/2+H/o.ty/2,bob=o.s.bob?Math.sin(t*.004)*size*.04:0,top=floorY-size-bob,cx=W/2*(1+o.tx/o.ty),x0=Math.floor(cx-size/2),x1=Math.floor(cx+size/2);
+  tmp.clearRect(0,0,W,H);for(var c=Math.max(0,x0);c<=Math.min(W-1,x1);c++){if(o.ty>=zbuf[c])continue;tmp.drawImage(o.s.img,Math.floor((c-x0)/size*64),0,1,64,c,top,1,size)}
+  var f=Math.min(1,1.4/(1+fk*o.ty+.09*o.ty*o.ty))*flick;tmp.globalCompositeOperation='source-atop';tmp.fillStyle='rgba(0,0,0,'+Math.max(0,1-f)+')';tmp.fillRect(0,0,W,H);tmp.globalCompositeOperation='source-over';ctx.drawImage(tmpC,0,0)});
+ var vg=ctx.createRadialGradient(W/2,H/2,H*.3,W/2,H/2,H*.95);vg.addColorStop(0,'rgba(0,0,0,0)');vg.addColorStop(1,'rgba(0,0,0,'+(isDark()?.9:.62)+')');ctx.fillStyle=vg;ctx.fillRect(0,0,W,H);
+ if(BT){ctx.fillStyle='rgba(0,0,0,.45)';ctx.fillRect(0,0,W,H)}if(flash>0){ctx.fillStyle='rgba(190,30,20,'+flash*.4+')';ctx.fillRect(0,0,W,H)}}
+function drawMini(){mini.fillStyle='#000';mini.fillRect(0,0,132,132);if(!G.in||!CUR)return;if(isDark()){mini.fillStyle='#555';mini.font='12px sans-serif';mini.fillText('黑暗中看不見地圖',10,66);return}
+ var n=CUR.length,cs=Math.floor(132/n),ox=Math.floor((132-cs*n)/2),seen=G.seen[G.f]||{},d=fd(G.f);
+ for(var y=0;y<n;y++)for(var x=0;x<n;x++){if(!seen[x+','+y])continue;var c=CUR[y][x];mini.fillStyle=c==='#'?'#4a3d30':c==='D'?'#9a6a2c':c==='>'?'#e0b95a':'#2a221a';mini.fillRect(ox+x*cs,ox+y*cs,cs,cs)}
+ d.feats.forEach(function(ft){if(!feAlive(G.f,ft)||!seen[ft.x+','+ft.y])return;mini.fillStyle=(ft.type==='mon'||ft.type==='boss')?'#d04030':ft.type==='chest'?'#e0902a':ft.type==='page'?'#e8e0b0':'#f0d040';mini.fillRect(ox+ft.x*cs+1,ox+ft.y*cs+1,Math.max(2,cs-2),Math.max(2,cs-2))});
+ mini.fillStyle='#4fa8d8';mini.fillRect(ox+cs+1,ox+cs+1,Math.max(2,cs-2),Math.max(2,cs-2));
+ mini.save();mini.translate(ox+px*cs,ox+py*cs);mini.rotate(ang+Math.PI/2);mini.fillStyle='#7fe08a';var s=Math.max(3,cs*.45);mini.beginPath();mini.moveTo(0,-s);mini.lineTo(s*.8,s*.8);mini.lineTo(-s*.8,s*.8);mini.closePath();mini.fill();mini.restore()}
+var last=0;
+function frame(t){var dt=Math.min(.05,(t-last)/1000);last=t;var k=1-Math.exp(-dt*14);
+ px+=(tx-px)*k;py+=(ty-py)*k;ang+=(tang-ang)*k;if(Math.abs(tx-px)<.002)px=tx;if(Math.abs(ty-py)<.002)py=ty;if(Math.abs(tang-ang)<.002)ang=tang;flash=Math.max(0,flash-dt*3);
+ var c=$('dv');if(c&&TAB==='dg'){if(c!==cv){cv=c;ctx=c.getContext('2d')}var m=$('dm');if(m&&m!==mcv){mcv=m;mini=m.getContext('2d')}try{renderScene(t);if(mini)drawMini()}catch(e){}}
+ requestAnimationFrame(frame)}
+
+// ===== 啟動 =====
+if(G.in){CUR=makeCur(G.f);snapView()}
+if(G.battle&&G.battle.pending){var gb=G.battle;try{initBT()}catch(e){G.battle=null;BT=null}}
+render();post({t:'hello'});arm();if(!G.started)post({t:'hint',s:'先啟用手繩'});if(BT)post({t:'want',open:true});
+if(G.started&&!G.tourDone)showTour();
+if(G.in&&G.ending&&!BT)showEnding(G.ending);
+requestAnimationFrame(frame);
+window.LTP={ingest:ingest,state:function(){return G},ver:VER};
+window.__t={sf:startFloors,nameTry:nameTry,endgo:function(){closeModal();exitDungeon()},modalHtml:function(){return $('mbox').innerHTML},up:upgrade,buy:buy,face:function(t){G.turn=t;turn=t;tang=ang=-Math.PI/2+t*Math.PI/2},put:function(x,y){G.x=x;G.y=y;px=tx=x+.5;py=ty=y+.5},FL:FL,G:function(){return G},cmd:cmd,BT:function(){return BT},enter:enterDungeon,exit:exitDungeon,ef:enterFloor,fd:fd,startBattle:startBattle,fast:function(){window.__fast=1},summary:summary,ingest:ingest,act:act,compact:compact,tail:tailFor,storySay:storySay,sbar:sbarHtml,CUR:function(){return CUR}};
+})();
+</script>
+</body>
+</html>
