@@ -1,0 +1,704 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1">
+<title>Minos Labyrinth - Knotted Thread Band</title>
+<style>
+:root{color-scheme:dark;--bg:#0b0a08;--bg2:#15110d;--bg3:#201a13;--line:#3a2f24;--tx:#e4d8c0;--mut:#8d8168;--amb:#e0b95a;--red:#c8503a;--grn:#7fbf7a;--teal:#6cc2c0}
+*{box-sizing:border-box;-webkit-tap-highlight-color:transparent}
+html,body{margin:0;height:100%;background:var(--bg);color:var(--tx);font:15px/1.55 -apple-system,"Noto Sans TC","PingFang TC","Microsoft JhengHei",sans-serif}
+button{font:inherit;color:inherit;cursor:pointer}
+#app{display:flex;flex-direction:column;height:100%;max-width:760px;margin:0 auto}
+#top{padding:7px 12px;background:linear-gradient(180deg,#1a140e,#0d0a07);border-bottom:1px solid var(--line);display:flex;gap:10px;align-items:center}
+#top b{color:var(--amb);letter-spacing:.12em;white-space:nowrap}
+.chips{flex:1;display:flex;gap:6px;flex-wrap:wrap;font-size:12px;color:var(--mut)}
+.chip{background:var(--bg3);border:1px solid var(--line);border-radius:10px;padding:1px 8px;white-space:nowrap}
+.chip.hp{color:var(--grn)}.chip.pt{color:var(--amb)}.chip.lo{color:var(--teal)}.chip.bad{color:var(--red)}
+#tabs{display:flex;background:var(--bg2);border-bottom:1px solid var(--line)}
+#tabs button{flex:1;background:none;border:0;border-bottom:2px solid transparent;padding:9px 2px;color:var(--mut);font-size:14px}
+#tabs button.on{color:var(--amb);border-bottom-color:var(--amb)}
+#tabs button.dot::after{content:"●";color:var(--red);font-size:9px;vertical-align:top;margin-left:2px}
+#view{flex:1;overflow:auto;padding:10px 12px 36px}
+#sbar:empty{display:none}#sbar{padding:8px 12px 10px;border-top:1px solid var(--line);background:var(--bg2)}
+h3{margin:12px 0 7px;font-size:15px;color:var(--amb);font-weight:600}h3:first-child{margin-top:2px}
+.card{background:var(--bg2);border:1px solid var(--line);border-radius:10px;padding:9px 12px;margin-bottom:10px}
+.row{display:flex;justify-content:space-between;gap:10px;align-items:center;padding:3px 0}.row span:first-child{color:var(--mut)}
+.mut{color:var(--mut);font-size:13px}
+.btn{background:#1f1913;border:1px solid #4a3b2c;border-radius:8px;padding:8px 12px;min-height:40px;touch-action:manipulation;user-select:none;-webkit-user-select:none}
+.btn:active{background:#4a3b2c}.btn:disabled{opacity:.38;cursor:default}
+.btn.amb{background:#3a2f12;border-color:#8a7232;color:#ffe3a0}.btn.red{background:#3a1c18;border-color:#8a4a40;color:#ffc0b5}
+.btn.wide{width:100%;margin-top:6px}.btns{display:flex;gap:6px;flex-wrap:wrap;margin-top:6px}
+input,textarea,select{width:100%;background:#0c0a07;color:var(--tx);border:1px solid var(--line);border-radius:8px;padding:8px;font:inherit}
+textarea{min-height:70px;resize:vertical}label{display:block;font-size:13px;color:var(--mut);margin:8px 0 3px}
+.bar{height:6px;background:#2a1a14;border-radius:3px;overflow:hidden;margin-top:3px}.bar i{display:block;height:100%;background:var(--grn)}
+.tag{display:inline-block;font-size:11px;padding:0 6px;border-radius:8px;border:1px solid var(--line);color:var(--mut);margin-left:4px}
+.tag.ok{color:var(--grn);border-color:#3e6a46}.tag.bad{color:var(--red);border-color:#7a3d35}.tag.fix{color:var(--amb);border-color:#7a6430}
+.shop-item{display:flex;justify-content:space-between;align-items:center;gap:8px;padding:7px 0;border-top:1px solid var(--line)}.shop-item:first-child{border-top:0}
+.shop-item .nm{flex:1}.shop-item .nm small{display:block;color:var(--mut);font-size:12px}.price{color:var(--amb);white-space:nowrap;font-size:13px;margin-right:4px}
+.log{font-size:13px;color:var(--mut);border-left:2px solid var(--line);padding-left:8px;margin:4px 0}
+.ally{display:flex;gap:10px;align-items:center;padding:6px 0;border-top:1px solid var(--line)}.ally:first-child{border-top:0}
+.av{width:42px;height:42px;border-radius:50%;flex:none;background:#2a2118 center/cover;display:flex;align-items:center;justify-content:center;font-weight:700;color:#fff;border:1px solid #5a4a38;overflow:hidden}.av img{width:100%;height:100%;object-fit:cover}
+/* story */
+.s-pic{margin:0 0 10px;border-radius:10px;overflow:hidden;border:1px solid var(--line);max-height:200px}.s-pic img{display:block;width:100%;height:200px;object-fit:cover;object-position:50% 35%}
+.s-st{font-size:12px;color:#a89878;letter-spacing:.04em;margin:2px 0 10px;padding-bottom:6px;border-bottom:1px solid var(--line)}
+.s-p{color:#cfc4ad;margin:0 0 .75em;line-height:1.8}
+.s-d{color:#f4dfa0;margin:0 0 .75em;padding:2px 0 2px 10px;border-left:3px solid #b99a4a;background:rgba(224,185,90,.06);line-height:1.8}.s-d b{color:#ffe9b0}
+.s-hr{height:1px;background:var(--line);margin:12px 0}
+.s-opts{display:flex;flex-direction:column;gap:6px;margin:10px 0}.s-opts .btn{text-align:left}
+.s-col{margin:8px 0;border:1px solid var(--line);border-radius:8px;background:var(--bg2)}.s-col summary{padding:6px 10px;color:var(--mut);cursor:pointer;font-size:13px}.s-col div{padding:0 10px 8px;font-size:13px;color:#a89c84;white-space:pre-wrap}
+.s-busy{color:var(--amb);font-size:13px;margin:6px 0}.s-ev{font-size:13px;color:var(--teal);border:1px solid #2a4a52;background:rgba(108,194,192,.07);border-radius:8px;padding:5px 10px;margin:6px 0}
+.s-res{white-space:pre-wrap;font-size:13px;color:#a89c84}
+.s-bar{display:flex;gap:8px;align-items:flex-end}.s-bar textarea{flex:1;min-height:56px;max-height:140px;resize:none}.s-bar .btn{min-height:56px;min-width:64px}
+.locs{display:flex;gap:6px;flex-wrap:wrap;margin-bottom:8px}.locs .btn{min-height:34px;padding:4px 10px;font-size:13px}.locs .btn.cur{border-color:var(--amb);color:var(--amb)}
+/* dungeon */
+.vw{position:relative}
+#dv{width:100%;aspect-ratio:8/5;display:block;background:#000;border:2px solid var(--line);border-radius:6px;image-rendering:pixelated}
+#en{position:absolute;left:0;right:0;top:0;bottom:0;display:flex;justify-content:center;align-items:flex-end;gap:6px;padding:6px;pointer-events:none}
+.ec{pointer-events:auto;width:128px;background:rgba(10,8,6,.72);border:1px solid var(--line);border-radius:8px;padding:4px;text-align:center;font-size:12px}.ec.boss{width:190px}
+.ec.sel{border-color:var(--amb);box-shadow:0 0 0 2px rgba(224,185,90,.5);cursor:pointer}.ec.dead{opacity:.25;filter:grayscale(1)}
+.ec img{width:100%;aspect-ratio:1;object-fit:contain;display:block}.ec img.px{image-rendering:pixelated}
+.hb{height:5px;background:#3a1a16;border-radius:3px;overflow:hidden;margin-top:3px}.hb i{display:block;height:100%;background:var(--red)}.pc .hb i{background:var(--grn)}
+.drow{display:flex;gap:8px;margin-top:8px;align-items:stretch}
+#party{flex:1;display:grid;grid-template-columns:1fr 1fr;gap:6px;align-content:start}
+.pc{background:var(--bg2);border:1px solid var(--line);border-radius:6px;padding:5px 8px;font-size:12.5px}.pc b{font-weight:600;display:block}.pc small{color:var(--mut)}.pc.down{opacity:.45}.pc.def{border-color:var(--teal)}
+#dm{width:132px;height:132px;background:#000;border:2px solid var(--line);border-radius:6px;image-rendering:pixelated;flex:none}
+#dstat{margin:8px 0 0;font-size:13px;color:#b9ad92;display:flex;gap:12px;flex-wrap:wrap}#dstat .warn{color:var(--red)}
+.pad,.cmd{display:grid;grid-template-columns:repeat(3,1fr);gap:6px;margin-top:8px}.pad .btn,.cmd .btn{font-size:15px;padding:12px 6px}.pad .wide,.cmd .wide{grid-column:1/4;margin-top:0}
+#dlog{margin-top:8px;background:#100d0a;border:1px solid #2e251c;border-radius:6px;padding:7px 10px;font-size:13px;line-height:1.6;min-height:7em;max-height:11em;overflow:auto}
+#dlog div{color:var(--mut)}#dlog div:first-child{color:#f0e3c4}
+#toast{position:fixed;left:50%;bottom:18px;transform:translateX(-50%);background:#2a2218;border:1px solid #6a5838;padding:8px 14px;border-radius:10px;font-size:14px;opacity:0;pointer-events:none;transition:.25s;max-width:90%;z-index:50}#toast.on{opacity:1}
+#modal{position:fixed;inset:0;background:rgba(0,0,0,.72);display:none;align-items:center;justify-content:center;padding:14px;z-index:40}#modal.on{display:flex}
+#mbox{background:var(--bg2);border:1px solid var(--line);border-radius:12px;padding:14px;max-width:480px;width:100%;max-height:88vh;overflow:auto}
+#mbox h3,#mbox h4{margin:0 0 8px;color:var(--amb)}#mbox .btn{display:block;width:100%;margin-top:6px;text-align:left;padding:10px 12px}#mbox .mut{margin:4px 0}
+.dead{color:var(--red);font-weight:700}
+</style>
+</head>
+<body>
+<div id="app"><div id="top"><b>🧵 Thread Band</b><div class="chips" id="chips"></div></div><nav id="tabs"></nav><main id="view"></main><div id="sbar"></div></div>
+<div id="toast"></div><div id="modal"><div id="mbox"></div></div>
+<script>
+(function(){
+'use strict';
+var VER='1.0.0',KEY='mn.save.en.v1';
+var IMG_BASE='../img/';   // image folder; if an image is missing, built-in graphics are used automatically
+var P=(window.parent&&window.parent!==window)?window.parent:null;
+function $(id){return document.getElementById(id)}
+function esc(s){return String(s==null?'':s).replace(/[&<>"']/g,function(c){return{'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]})}
+function ri(a,b){return a+Math.floor(Math.random()*(b-a+1))}
+function rf(a,b){return a+Math.random()*(b-a)}
+function pick(a){return a[Math.floor(Math.random()*a.length)]}
+function clamp(v,a,b){return Math.max(a,Math.min(b,v))}
+function djb(s){var h=5381;for(var i=0;i<s.length;i++)h=((h<<5)+h+s.charCodeAt(i))>>>0;return h}
+
+// ===== data =====
+var LOC={port:'Knossos Harbor',guild:'Palace - Hall of Threads',market:'Market Street',smith:'Artisan Quarter - Old Workshop',temple:'Temple of the Double Axe'};
+var UPMAX=6;function upCost(k,n){return k==='a'?60*(n+1):50*(n+1)}
+var ITEM={potion:{n:'Olive Tonic',c:25,note:'Restores 45 HP'},fire:{n:'Oil Flask',c:35,note:'Deals 22 damage to all enemies'},water:{n:'Thread Spring Water',c:0,note:'Revives a downed ally (HP 40%); only obtainable at springs in the labyrinth'},thread:{n:'Thread Ball',c:30,note:'Use anywhere in the labyrinth to be pulled back to the surface at once'},oil:{n:'Lamp Oil',c:15,note:'Refills 6 units of lamp oil, max 30'}};
+var ALLY={'Shieldbearer':{hp:90,dmg:10},'Archer':{hp:60,dmg:14},'Priest':{hp:60,dmg:6},'Artisan':{hp:70,dmg:9}};
+var CORE={'Kallis':'Shieldbearer','Theon':'Archer','Meropa':'Priest','Aone':'Artisan'};
+var QNAME=['pasiphae','pasiphaë','pasiphaa','pasiphaé','queenpasiphae','queenpasiphaë'];
+var ENDTXT={king:'Defeated Asterion on the king’s command; the labyrinth stopped. Ending: The King’s Command.',name:'You called out "Pasiphae" before Asterion; it lowered its weapon, the labyrinth stopped on its own, and Asterion did not die. Ending: The Name.'};
+var SK={str:{n:'Power Strike',lv:1,sp:2,t:'foe',d:'Single target 1.8 x damage'},combo:{n:'Combo',lv:3,sp:2,t:'foe',d:'Hits twice, each 0.9 x damage'},pierce:{n:'Armor Break',lv:5,sp:2,t:'foe',d:'Single target 1.2 x damage, ignores defense'},cheer:{n:'Inspire',lv:7,sp:3,t:'self',d:'Party damage +25%, lasts 3 rounds'},heal:{n:'Heal',lv:9,sp:3,t:'ally',d:'Restores one ally 35% HP'}};
+var SKO=['str','combo','pierce','cheer','heal'];
+var ASK={'Shieldbearer':['pierce','str','cheer'],'Archer':['combo','str','pierce'],'Priest':['heal','cheer','str'],'Artisan':['pierce','combo','cheer']};
+function learned(){return SKO.filter(function(k){return G.lv>=SK[k].lv}).map(function(k){return SK[k].n})}
+var BOND=['Stranger','Acquaintance','Trusted','Close'];
+var PAGES=['Daedalus Manuscript I: "I built the king a labyrinth to hold a monster. Every path on the plans has an end."','Manuscript II: "In the third year of construction, the walls began to grow on their own. I did not design this."','Manuscript III: "The day the queen’s child was sent in, the labyrinth went quiet for the first time, as if it were eating."','Manuscript IV: "It does not want blood. It wants someone to stay inside forever, unable to follow my thread out."','Manuscript V: "If anyone reads this page: do not kill it. Go and find the name it is waiting for."'];
+var EN={
+ 'Root Rat':{hp:14,d:5,xp:3,pts:4,shape:'quad',col:'#8a7a5a',img:'rat'},'Moss Grub':{hp:18,d:4,xp:3,pts:4,shape:'blob',col:'#6a9a4a',img:'moss'},'Lost Dead':{hp:26,d:7,xp:5,pts:7,shape:'ghost',col:'#a8b8c0',img:'lost'},'Stone Snail':{hp:30,d:8,xp:5,pts:8,shape:'blob',col:'#7a8a72',img:'snail'},
+ 'Statue Guard':{hp:110,d:12,xp:40,pts:60,shape:'giant',col:'#8a8a82',boss:1,img:'statue'},
+ 'Bronze Beetle':{hp:32,d:9,xp:7,pts:10,shape:'bug',col:'#b8863a',img:'beetle'},'Echo Wraith':{hp:28,d:10,xp:7,pts:10,shape:'ghost',col:'#7a6ab0',img:'echo'},'Grave Hound':{hp:40,d:12,xp:9,pts:12,shape:'quad',col:'#6a4a38',img:'hound'},
+ 'Bronze Wheel Colossus':{hp:190,d:16,xp:70,pts:110,shape:'giant',col:'#c08a3a',boss:1,img:'colossus'},
+ 'Bone Hunter':{hp:50,d:14,xp:12,pts:16,shape:'skel',col:'#d8d0b8',img:'skeleton'},'Mirror Shade':{hp:45,d:15,xp:12,pts:16,shape:'ghost',col:'#9ad0d8',img:'shade'},'Labyrinth Devourer':{hp:70,d:17,xp:16,pts:22,shape:'blob',col:'#8a3a4a',img:'devourer'},
+ 'Mirror Warden':{hp:240,d:18,xp:100,pts:170,shape:'giant',col:'#9ad0e8',boss:1,img:'mirror'},'Thread Puppet':{hp:48,d:15,xp:12,pts:17,shape:'human',col:'#c8503a',img:'puppet'},'Offering Puppet':{hp:62,d:16,xp:15,pts:21,shape:'human',col:'#b87a52',img:'offering'},'Shuttle Mite':{hp:44,d:17,xp:14,pts:20,shape:'bug',col:'#d8a04a',img:'shuttle'},
+ 'Weaver':{hp:300,d:20,xp:130,pts:220,shape:'giant',col:'#c8503a',boss:1,img:'weaver'},
+ 'Asterion':{hp:420,d:24,xp:200,pts:400,shape:'giant',col:'#6a2a1a',boss:1,img:'asterion'},
+ 'Dock Thug':{hp:18,d:6,xp:4,pts:6,shape:'human',col:'#7a6a4a',img:'thug'},'Oil Thief':{hp:14,d:5,xp:3,pts:5,shape:'human',col:'#4a4a5a',img:'thug'}
+};
+function enemyStat(k,f){var t=EN[k]?Object.assign({},EN[k]):null;
+ if(!t){var base=Object.keys(EN).sort(function(a,b){return b.length-a.length}).filter(function(x){return String(k).toLowerCase().indexOf(x.toLowerCase())>=0})[0];
+  t=Object.assign({},base?EN[base]:{hp:24,d:7,xp:4,pts:6,shape:'human',col:'#8a6a4a',img:'thug'});if(/mutant|giant|chief|elite|alpha/i.test(k)){t.hp=Math.round(t.hp*2);t.d=Math.round(t.d*1.4);t.xp*=2;t.pts*=2}}
+ var F=(f&&FL[f])||{},hs=F.hs||1,ds=F.ds||1;if((hs!==1||ds!==1)&&!t.boss){t.hp=Math.round(t.hp*hs);t.d=Math.round(t.d*ds);t.xp=Math.round(t.xp*hs*ds);t.pts=Math.round(t.pts*hs*ds)}return t}
+//#FL-START
+var FL=[null,
+ {n:'Floor 1 - Olive-Root Corridor',size:9,seed:1101,boss:null,mons:['Root Rat','Moss Grub','Lost Dead'],nM:8,pages:[]},
+ {n:'Floor 2 - Mossy Stone Cloister',size:10,seed:2202,boss:null,mons:['Moss Grub','Lost Dead','Stone Snail'],nM:10,pages:[1]},
+ {n:'Floor 3 - Hall of Statues',size:11,seed:3303,boss:'Statue Guard',mons:['Stone Snail','Grave Hound','Echo Wraith'],nM:11,hs:1.25,pages:[2]},
+ {n:'Floor 4 - Bronze Spiral Gallery',size:12,seed:4404,boss:'Bronze Wheel Colossus',mons:['Bronze Beetle','Echo Wraith','Grave Hound'],nM:12,hs:1.5,pages:[3]},
+ {n:'Floor 5 - House of Bone and Mirrors',size:13,seed:5505,boss:'Mirror Warden',mons:['Bone Hunter','Mirror Shade','Labyrinth Devourer'],nM:13,hs:1.75,pages:[4]},
+ {n:'Floor 6 - Gallery of Offerings',size:14,seed:6606,boss:'Weaver',mons:['Thread Puppet','Offering Puppet','Shuttle Mite'],nM:14,hs:2,ds:1.25,pages:[5]},
+ {n:'Floor 7 - Abode of the Star',size:10,seed:7707,boss:'Asterion',mons:[],nM:0,pages:[]}];
+//#FL-END
+var PAL=[null,
+ {w:[96,108,64],door:[112,72,34],ce:['#030403','#12170c'],fl:['#080a05','#1f2414']},
+ {w:[84,106,90],door:[104,76,40],ce:['#030504','#0f1a14'],fl:['#050806','#17241c']},
+ {w:[140,138,130],door:[110,80,52],ce:['#040404','#18181a'],fl:['#070707','#222020']},
+ {w:[150,112,56],door:[120,80,36],ce:['#050403','#1a1408'],fl:['#0a0805','#2a2012']},
+ {w:[150,170,176],door:[100,86,70],ce:['#040506','#14191c'],fl:['#07080a','#1e2428']},
+ {w:[118,62,66],door:[90,60,44],ce:['#060304','#1c0e10'],fl:['#0a0506','#2a1618']},
+ {w:[76,76,128],door:[96,80,60],ce:['#020208','#0c0c20'],fl:['#04040a','#14142c']}];
+
+//#GEN-START
+function rng(seed){return function(){seed|=0;seed=seed+0x6D2B79F5|0;var t=Math.imul(seed^seed>>>15,1|seed);t=t+Math.imul(t^t>>>7,61|t)^t;return((t^t>>>14)>>>0)/4294967296}}
+function genFloor(f){
+ var cfg=FL[f],c=cfg.size,n=2*c+1,r=rng(cfg.seed),g=[],i,j,t;
+ for(i=0;i<n;i++){g.push([]);for(j=0;j<n;j++)g[i].push('#')}
+ var st=[[1,1]];g[1][1]='.';
+ while(st.length){var cur=st[st.length-1],x=cur[0],y=cur[1],ds=[[2,0],[-2,0],[0,2],[0,-2]],moved=false;
+  for(i=3;i>0;i--){j=Math.floor(r()*(i+1));t=ds[i];ds[i]=ds[j];ds[j]=t}
+  for(i=0;i<4;i++){var nx=x+ds[i][0],ny=y+ds[i][1];if(nx>0&&ny>0&&nx<n-1&&ny<n-1&&g[ny][nx]==='#'){g[y+ds[i][1]/2][x+ds[i][0]/2]='.';g[ny][nx]='.';st.push([nx,ny]);moved=true;break}}
+  if(!moved)st.pop()}
+ var want=Math.floor(c*c*0.14),done=0,tries=0;
+ while(done<want&&tries<400){tries++;var wx,wy;if(r()<0.5){wx=2*(1+Math.floor(r()*(c-1)));wy=1+2*Math.floor(r()*c)}else{wx=1+2*Math.floor(r()*c);wy=2*(1+Math.floor(r()*(c-1)))}
+  if(g[wy][wx]==='#'){g[wy][wx]='.';done++}}
+ var D4=[[1,0],[-1,0],[0,1],[0,-1]],dist={'1,1':0},q=[[1,1]];
+ while(q.length){var p=q.shift(),dd=dist[p[0]+','+p[1]];D4.forEach(function(d){var a=p[0]+d[0],b=p[1]+d[1],k=a+','+b;if(g[b]&&g[b][a]==='.'&&dist[k]==null){dist[k]=dd+1;q.push([a,b])}})}
+ function deg(x,y){var k=0;D4.forEach(function(d){if(g[y+d[1]][x+d[0]]==='.')k++});return k}
+ var cells=Object.keys(dist).map(function(k){var a=k.split(',');return{x:+a[0],y:+a[1],d:dist[k]}});
+ var ends=cells.filter(function(o){return deg(o.x,o.y)===1&&o.d>2}).sort(function(a,b){return b.d-a.d});
+ var used={'1,1':1};
+ function mark(o){used[o.x+','+o.y]=1;return o}
+ var boss=mark(ends.shift());
+ for(i=ends.length-1;i>0;i--){j=Math.floor(r()*(i+1));t=ends[i];ends[i]=ends[j];ends[j]=t}
+ function spot(){var o=ends.shift();if(o)return mark(o);var pool=cells.filter(function(c){return c.d>=5&&!used[c.x+','+c.y]&&deg(c.x,c.y)<=2});if(!pool.length)pool=cells.filter(function(c){return c.d>=3&&!used[c.x+','+c.y]});return mark(pool[Math.floor(r()*pool.length)])}
+ var feats=[];if(cfg.boss)feats.push({id:'boss',type:'boss',x:boss.x,y:boss.y,foes:[cfg.boss]});
+ var doorEnd=null;
+ for(i=0;i<ends.length&&!doorEnd;i++){var e=ends[i],nb=null;D4.forEach(function(d){if(g[e.y+d[1]][e.x+d[0]]==='.')nb={x:e.x+d[0],y:e.y+d[1]}});
+  if(nb&&deg(nb.x,nb.y)===2){doorEnd=e;ends.splice(i,1);g[nb.y][nb.x]='D';mark(e);used[nb.x+','+nb.y]=1}}
+ if(doorEnd){var ka=spot();feats.push({id:'key',type:'key',x:ka.x,y:ka.y});feats.push({id:'cd',type:'chest',x:doorEnd.x,y:doorEnd.y,good:1})}
+ var c1=spot();feats.push({id:'c1',type:'chest',x:c1.x,y:c1.y});
+ cfg.pages.forEach(function(pn){var s=spot();feats.push({id:'p'+pn,type:'page',x:s.x,y:s.y,n:pn})});
+ var cand=cells.filter(function(c){return c.d>=4&&!used[c.x+','+c.y]});
+ for(i=cand.length-1;i>0;i--){j=Math.floor(r()*(i+1));t=cand[i];cand[i]=cand[j];cand[j]=t}
+ var nm=Math.min(cfg.nM,cand.length);
+ for(i=0;i<nm;i++){var cnt=1+(r()<0.45?1:0)+(r()<0.15?1:0),fo=[],kind=cfg.mons[Math.floor(r()*cfg.mons.length)];
+  for(j=0;j<cnt;j++)fo.push(r()<0.7?kind:cfg.mons[Math.floor(r()*cfg.mons.length)]);
+  feats.push({id:'m'+i,type:'mon',x:cand[i].x,y:cand[i].y,foes:fo})}
+ return{grid:g,feats:feats,boss:{x:boss.x,y:boss.y},n:n}}
+//#GEN-END
+
+// ===== Save =====
+var G;
+function fresh(){return{v:1,started:false,name:'',lv:1,xp:0,hp:100,sp:3,pts:60,oil:12,items:{potion:2,fire:1,water:0,thread:0},keys:0,pages:[],ua:0,ud:0,ending:null,nt:0,loc:'port',in:false,f:1,x:1,y:1,turn:0,seen:{},taken:{},slain:{},opened:{},guard:{},bound:[],steps:0,
+ roster:[],party:[],notes:[],processed:[],battle:null,run:null,dead:false,idle:0,auto:true,test:false,tourDone:false,cleared:false}}
+function load(){try{var t=localStorage.getItem(KEY);if(t){var o=JSON.parse(t);if(o&&o.v===1)return o}}catch(e){}return null}
+G=load()||fresh();
+function persist(){try{localStorage.setItem(KEY,JSON.stringify(G))}catch(e){}arm()}
+function mhp(){return 100+15*(G.lv-1)}
+function pdmg(){return Math.round((12+3*(G.lv-1)+3*(G.ua|0))*(G.oil<=0&&G.in?0.8:1))}
+function parmor(){return 2+(G.ud|0)}
+function allyMax(a){return ALLY[a.style].hp+8*(G.lv-1)}
+function allyDmg(a){return ALLY[a.style].dmg+2*(G.lv-1)+3*(a.ua|0)}
+function allyArmor(a){return 3+(a.ud|0)}
+function person(n){return G.roster.find(function(r){return r.name===n})}
+function partyList(){return G.party.map(person).filter(Boolean)}
+function note(t){G.notes.push(t);if(G.notes.length>8)G.notes.shift()}
+function newRun(){return{kills:{},pts:0,xp:0,items:{},pages:[],boss:[],downs:{},lost:[],deep:1,steps0:G.steps,lv0:G.lv,rests:0,bound:[]}}
+function R(){return G.run||(G.run=newRun())}
+function addItem(k,n){var r=R();r.items[k]=(r.items[k]||0)+(n||1)}
+
+// ===== Labyrinth state =====
+var FD={},CUR=null,BT=null,DL=[],DX=[0,1,0,-1],DY=[-1,0,1,0],DGMODE=null;
+function fd(f){return FD[f]||(FD[f]=genFloor(f))}
+function makeCur(f){var d=fd(f),g=d.grid.map(function(r){return r.slice()});
+ for(var y=0;y<g.length;y++)for(var x=0;x<g.length;x++)if(g[y][x]==='D'&&G.opened[f+':'+x+','+y])g[y][x]='.';
+ if(!FL[f].boss||G.guard[f])g[d.boss.y][d.boss.x]='>';return g}
+function say(s){DL.unshift(s);if(DL.length>40)DL.length=40;upd()}
+function feAlive(f,ft){var k=f+':'+ft.id;if(ft.type==='mon')return !G.slain[k];if(ft.type==='boss')return !G.guard[f];return !G.taken[k]}
+function featAt(x,y,types){return fd(G.f).feats.find(function(ft){return ft.x===x&&ft.y===y&&feAlive(G.f,ft)&&(!types||types.indexOf(ft.type)>=0)})}
+function isDark(){return G.in&&G.oil<=0}
+var turn=0,px=1.5,py=1.5,ang=0,tx=1.5,ty=1.5,tang=0,flash=0;
+function snapView(){px=tx=G.x+.5;py=ty=G.y+.5;turn=G.turn;ang=tang=-Math.PI/2+turn*Math.PI/2}
+function reveal(){var k=G.f,s=G.seen[k]||(G.seen[k]={});for(var dy=-1;dy<=1;dy++)for(var dx=-1;dx<=1;dx++)s[(G.x+dx)+','+(G.y+dy)]=1}
+function enterFloor(f,mode){G.f=f;CUR=makeCur(f);var d=fd(f);if(mode==='up'){G.x=d.boss.x;G.y=d.boss.y}else{G.x=1;G.y=1}
+ var best=0;for(var k=0;k<4;k++){if(CUR[G.y+DY[k]]&&CUR[G.y+DY[k]][G.x+DX[k]]!=='#'){best=k;break}}
+ G.turn=best;snapView();reveal();if(G.in&&G.run&&f>G.run.deep)G.run.deep=f;persist();upd()}
+function dir(){return((turn%4)+4)%4}
+function moving(){return Math.abs(tx-px)>.05||Math.abs(ty-py)>.05||Math.abs(tang-ang)>.05}
+function tryMove(dx,dy){var nx=G.x+dx,ny=G.y+dy,c=CUR[ny]&&CUR[ny][nx];
+ if(!c||c==='#'){say('Cold stone wall ahead.');return}
+ if(c==='D'){if(G.keys>0){G.keys--;G.opened[G.f+':'+nx+','+ny]=1;CUR[ny][nx]='.';say('The bronze key turns and the door opens.')}else say('The door is locked; it needs a bronze key.');persist();upd();return}
+ var m=featAt(nx,ny,['mon','boss']);if(m){if(m.type==='boss'&&G.f===FL.length-1&&G.pages.length>=5&&!G.ending){PB=m;namePrompt('');return}startBattle({type:m.type,id:m.id,foes:m.foes,ctx:'dg'});return}
+ G.x=nx;G.y=ny;tx=G.x+.5;ty=G.y+.5;G.steps++;reveal();
+ if(G.steps%24===0&&G.oil>0){G.oil--;if(G.oil===0)say('The lamp oil is spent, and darkness closes in.')}
+ if(CUR[G.y][G.x]==='>'&&!G.guard[G.f]&&!FL[G.f].boss)bindFloor();
+ var it=featAt(G.x,G.y,['key','chest','page']);if(it){G.taken[G.f+':'+it.id]=1;pickup(it)}
+ persist();upd()}
+function loot(good){var f=G.f,o=[],n=good?2:1;
+ for(var i=0;i<n;i++){var r=Math.random();
+  if(r<0.5||(good&&i===0)){var v=ri(25,55)*f*(good?2:1);G.pts+=v;R().pts+=v;o.push(v+' silver')}
+  else if(r<0.78){G.items.potion++;addItem('potion');o.push('Olive Tonic')}
+  else if(r<0.92){G.items.fire++;addItem('fire');o.push('Oil Flask')}
+  else{G.oil=Math.min(30,G.oil+6);addItem('oil',6);o.push('Lamp Oil +6')}}
+ return o.join(', ')}
+function pickup(it){
+ if(it.type==='key'){G.keys++;say('You pick up a bronze key.')}
+ else if(it.type==='chest'){say('You open the chest and find: '+loot(it.good))}
+ else if(it.type==='page'){G.pages.push(it.n);R().pages.push(it.n);say('📜 '+PAGES[it.n-1]);if(G.pages.length>=5)say('The five manuscript pages fit together. Beneath the last line is a name crossed out many times; you can make out that it has three syllables.')}}
+function nearMon(){return fd(G.f).feats.some(function(ft){return(ft.type==='mon'||ft.type==='boss')&&feAlive(G.f,ft)&&Math.max(Math.abs(ft.x-G.x),Math.abs(ft.y-G.y))<=3})}
+function act(a){if(!G.in||G.dead||BT||moving())return;var d=dir();
+ switch(a){case'fwd':tryMove(DX[d],DY[d]);break;case'back':tryMove(-DX[d],-DY[d]);break;
+ case'sl':tryMove(DX[(d+3)%4],DY[(d+3)%4]);break;case'sr':tryMove(DX[(d+1)%4],DY[(d+1)%4]);break;
+ case'tl':G.turn--;turn=G.turn;tang=-Math.PI/2+turn*Math.PI/2;break;case'tr':G.turn++;turn=G.turn;tang=-Math.PI/2+turn*Math.PI/2;break}}
+function onSpring(){return G.x===1&&G.y===1}
+function onStairs(){return CUR&&CUR[G.y]&&CUR[G.y][G.x]==='>'}
+
+// ===== Entering and leaving the labyrinth and the exploration log =====
+var PB=null;
+function namePrompt(msg){modal('<div data-lock><h3>Asterion</h3><div class="mut">The huge figure stands with its back to you, motionless. The name crossed out on the manuscript’s last line surfaces in your mind.</div>'+(msg?'<div style="margin:8px 0;color:var(--amb)">'+esc(msg)+'</div>':'')+'<label>Call the name ('+(3-(G.nt|0))+'  tries left)</label><input id="nm-in" placeholder="Enter a name" autocomplete="off"><button class="btn amb" data-m="nameTry">Call the name</button><button class="btn red" data-m="namefight">Draw weapons</button><button class="btn" data-m="close">Step back</button></div>')}
+function normName(t){return String(t||'').replace(/[\s「」『』"'·・，。,.]/g,'').toLowerCase()}
+function nameTry(){var v=normName(($('nm-in')||{}).value);if(!v){toast('Please enter a name');return}
+ if(QNAME.indexOf(v)>=0){closeModal();G.ending='name';G.guard[G.f]=true;if(G.bound.indexOf(G.f)<0)G.bound.push(G.f);R().bound.push(FL[G.f].n);persist();showEnding('name');return}
+ G.nt=(G.nt|0)+1;persist();
+ if(G.nt>=3){closeModal();say('You called the wrong name three times. The huge figure slowly turns around -');if(PB)startBattle({type:PB.type,id:PB.id,foes:PB.foes,ctx:'dg'});return}
+ namePrompt('"……"It does not react. That is not the name it is waiting for.')}
+function showEnding(kind){var k=kind==='king'?{t:'Ending: The King’s Command',p:['When Asterion fell, it did not roar.','The walls stopped breathing; for the first time the whole labyrinth was utterly silent. Every path you had trodden felt as if it had never been alive.','You did as the Chancellor instructed and completed the errand.']}:{t:'Ending: The Name',p:['You speak the name. The huge figure stops, and its axe lowers.','It does not speak, only looks down at you, as if waiting for a voice that should have spoken long ago.','Then the walls fell quiet one by one, and the labyrinth stopped. You defied the king’s command, but it no longer needed anyone to stay inside.']};
+ modal('<div data-lock><h3>'+k.t+'</h3>'+k.p.map(function(x){return'<div class="mut" style="margin:6px 0">'+esc(x)+'</div>'}).join('')+'<button class="btn amb" data-m="endgo">Return to the surface (hand the ending to the AI)</button></div>')}
+function bindFloor(){G.guard[G.f]=true;if(G.bound.indexOf(G.f)<0)G.bound.push(G.f);R().bound.push(FL[G.f].n);say('You reach the stairs; Ariadne’s thread ties a knot on this floor.')}
+function healAll(){G.hp=mhp();G.sp=3;G.roster.forEach(function(a){if(a.state!=='dead'){a.hp=allyMax(a);a.state='ok'}})}
+function itemName(k){return ITEM[k]?ITEM[k].n:k}
+function summary(ending){var r=R(),L=['[Exploration Log]'];
+ L.push('Route: Floor '+(r.from||1)+' → deepest Floor '+r.deep+' | '+(G.steps-r.steps0)+' steps | rested at springs '+r.rests+' time(s)');
+ var k=Object.keys(r.kills).map(function(n){return n+' x'+r.kills[n]}).join(', ');L.push('Defeated: '+(k||'none'));
+ if(r.boss.length)L.push('Guardian: '+r.boss.join(', ')+' (defeated)');
+ if(r.bound.length)L.push('Bound floors: '+r.bound.join(', '));
+ var it=[];if(r.pts)it.push('silver +'+r.pts);Object.keys(r.items).forEach(function(n){it.push(itemName(n)+(n==='oil'?' +'+r.items[n]:' x'+r.items[n]))});if(r.xp)it.push('XP +'+r.xp);if(G.lv>r.lv0)it.push('Reached Lv.'+G.lv);
+ L.push('Loot: '+(it.join(', ')||'none'));
+ if(r.pages.length)L.push('Manuscripts: '+r.pages.map(function(n){return PAGES[n-1]}).join(' '));
+ var team=G.party.map(person).filter(Boolean).map(function(a){return a.name+(a.state==='injured'?' (badly wounded)':a.state==='dead'?' (dead)':r.downs[a.name]?' (knocked down along the way)':' (fine)')}).join(', ');
+ if(team)L.push('Companions: '+team);if(r.lost.length)L.push('Left behind in the labyrinth: '+r.lost.join(', '));
+ if(r.thread)L.push('Exit: used a thread ball and was pulled straight back to the surface.');
+ L.push('On leaving: HP '+Math.max(0,G.hp)+'/'+mhp()+', Lamp Oil '+G.oil+'. '+(ending||'Returned safely up the Thread Stair to the surface and recovered at the Hall of Threads.'));
+ return L.join('\n')}
+function sendOut(text){ST.evs=[];ST.res='';ST.go=null;ST.busy=true;TAB='story';if(P){post({t:'fill',text:text,send:G.auto,keep:true});if(!G.auto)ST.busy=false}else{toast(' (test mode)'+text.split('\n')[0]);ST.busy=false}render()}
+function exitDungeon(){var txt=summary(G.ending?ENDTXT[G.ending]:undefined);G.in=false;G.loc='guild';G.idle=0;healAll();G.run=null;BT=null;persist();DGMODE=null;sendOut(txt)}
+function startFloors(){var m=0;G.bound.forEach(function(f){if(f>m)m=f});var o=[1];for(var f=2;f<=Math.min(m+1,FL.length-1);f++)o.push(f);return o}
+function enterDungeon(f){if(G.ending||G.dead)return;f=+f||1;if(startFloors().indexOf(f)<0)f=1;G.in=true;G.run=newRun();G.run.deep=f;G.run.from=f;G.f=f;enterFloor(f,'start');DL=[];say(f>1?'You follow the thread all the way down and arrive at '+FL[f].n+'. ':'You descend the Thread Stair and enter the Minos Labyrinth.');TAB='dg';DGMODE=null;persist();render()}
+
+// ===== Springs, stairs =====
+function springMenu(){var h='<h3>🕯 Thread Spring ('+FL[G.f].n+')</h3><div class="mut">'+(G.guard[G.f]?'This floor’s guardian is defeated; the thread is bound.':'The thread has not been tied on this floor yet.')+'</div>';
+ h+='<button class="btn" data-m="rest">Rest: the whole party recovers, and this floor’s monsters grow back</button>';
+ h+='<button class="btn" data-m="water" '+(G.items.water>=3?'disabled':'')+'>Take spring water (owned '+G.items.water+'/3)</button>';
+ var bd=G.bound.filter(function(f){return f!==G.f});
+ if(bd.length){h+='<div class="mut">Ariadne’s thread'+(nearMon()?': Monsters are nearby; the thread snapped and cannot be used.':': Choose a bound floor')+'</div>';if(!nearMon())bd.forEach(function(f){h+='<button class="btn" data-m="tp" data-a="'+f+'">Follow the thread to '+FL[f].n+'</button>'})}
+ if(G.f>1)h+='<button class="btn" data-m="up">Go up (stairs back to the previous floor)</button>';else h+='<button class="btn amb" data-m="surface">Return to the surface (Thread Stair)</button>';
+ h+='<button class="btn" data-m="close">Close</button>';modal(h)}
+function modal(h){$('mbox').innerHTML=h;$('modal').classList.add('on')}
+function closeModal(){$('modal').classList.remove('on')}
+$('modal').addEventListener('click',function(e){if(e.target.id==='modal'&&!$('mbox').querySelector('[data-lock]'))closeModal()});
+document.addEventListener('click',function(e){var b=e.target.closest('[data-m]');if(!b)return;var m=b.dataset.m,a=b.dataset.a;
+ if(m==='close'){closeModal();return}
+ if(m==='rest'){healAll();R().rests++;Object.keys(G.slain).forEach(function(k){if(k.indexOf(G.f+':')===0)delete G.slain[k]});say('Rested at the spring. Your wounds healed, but the labyrinth used the time to grow new monsters.');closeModal();persist();upd();return}
+ if(m==='water'){if(G.items.water<3){G.items.water++;say('You take a bottle of Thread Spring water.')}persist();springMenu();return}
+ if(m==='tp'){closeModal();if(nearMon()){say('The thread snapped.');return}enterFloor(+a,'start');say('You grip the thread and follow it back - the scenery draws in like gathered cloth.');return}
+ if(m==='up'){closeModal();enterFloor(G.f-1,'up');say('You climb the stairs back to '+FL[G.f].n+'. ');return}
+ if(m==='surface'){modal('<div data-lock><h3>Return to the surface?</h3><div class="mut">This will send this trip’s exploration record to the AI in one go. The AI continues with the scene of your return; HP is fully restored on the surface.</div><button class="btn amb" data-m="surface2">Return to the surface by the Thread Stair</button><button class="btn" data-m="close">Browse more</button></div>');return}
+ if(m==='surface2'){closeModal();exitDungeon();return}
+ if(m==='descend'){closeModal();if(G.f>=FL.length-1){modal('<h3>The Deepest Point</h3><div class="mut">There is no path below the stairs; this is the deepest point of the labyrinth.</div><button class="btn" data-m="close">Close</button>');return}
+  enterFloor(G.f+1,'start');say('You go down the stairs to '+FL[G.f].n+'. ');return}
+ if(m==='nameTry'){nameTry();return}if(m==='namefight'){closeModal();if(PB)startBattle({type:PB.type,id:PB.id,foes:PB.foes,ctx:'dg'});return}if(m==='endgo'){closeModal();exitDungeon();return}if(m==='sk'){closeModal();cmd(a);return}if(m==='skh'){closeModal();healPlayer(+a);return}if(m==='it'){useItem(a);return}if(m==='itt'){useItemOn(a,+b.dataset.t);return}
+ if(m==='buy'){buy(a);return}if(m==='upg'){upgrade(a);return}
+ if(m==='enter'){closeModal();enterDungeon(a);return}
+ if(m==='thread'){modal('<div data-lock><h3>Pull the thread ball taut?</h3><div class="mut">Uses up 1 thread ball and return to the surface at once, sending this trip’s exploration record to the AI.</div><button class="btn amb" data-m="thread2">Pull the thread back to the surface</button><button class="btn" data-m="close">No thanks</button></div>');return}
+ if(m==='thread2'){closeModal();if(!(G.items.thread>0))return;G.items.thread--;R().thread=1;exitDungeon();return}
+});
+
+// ===== Combat =====
+function startBattle(cfg){if(G.battle&&G.battle.pending&&BT)return;
+ G.battle={pending:true,type:cfg.type,id:cfg.id||null,foes:cfg.foes.slice(),ctx:cfg.ctx,where:cfg.where||'',why:cfg.why||''};initBT();persist()}
+function initBT(){var c=G.battle;
+ var party=[{id:'P',name:G.name||'You',side:'p',hp:G.hp,max:mhp(),dmg:pdmg(),armor:parmor(),style:'Protagonist'}];
+ partyList().forEach(function(a,i){if(a.state==='dead')return;party.push({id:'A'+i,ref:a,name:a.name,side:'a',hp:Math.max(a.hp,a.state==='injured'?1:0),max:allyMax(a),dmg:allyDmg(a),armor:allyArmor(a),style:a.style,cd:0,sp:2})});
+ var foes=c.foes.map(function(k,i){var t=enemyStat(k,c.ctx==='dg'?G.f:0);return{id:'E'+i,name:k,side:'e',hp:t.hp,max:t.hp,dmg:t.d,armor:0,boss:!!t.boss,shape:t.shape,col:t.col,img:t.img}});
+ BT={cfg:c,party:party,foes:foes,round:1,mode:'cmd',pending:null,log:['Fight begins!'],over:null};
+ if(c.type==='boss')say('You step into the guardian’s chamber - the bronze door slams shut behind you.'+c.foes[0]+'opens its eyes.');
+ TAB='dg';DGMODE=null;post({t:'want',open:true});render()}
+function liveF(){return BT.foes.filter(function(x){return x.hp>0})}
+function liveP(){return BT.party.filter(function(x){return x.hp>0})}
+function blog(s){BT.log.unshift(s);upd()}
+function hurt(a,d,mult,tag,pierce){var base=a.dmg*(mult||1)*rf(.85,1.15);if(a.side!=='e'&&BT.buff&&BT.buff.r>0)base*=1.25;if(d.def)base*=.5;var v=Math.max(1,Math.round(base-(pierce?0:d.armor)));d.hp-=v;
+ blog((a.side==='p'?'You':a.name)+(tag||' attacked ')+(d.side==='p'?'You':d.name)+', dealing '+v+' damage');
+ if(d.hp<=0){d.hp=0;blog((d.side==='p'?'You':d.name)+(d.side==='e'?' fell':' was knocked down!'))}
+ if(d.side==='p'||d.side==='a')flash=1;return v}
+function castFoe(u,id,tg){
+ if(id==='str')hurt(u,tg,1.8,' Power Strike ');
+ else if(id==='combo'){hurt(u,tg,.9,' Combo ');var t2=tg.hp>0?tg:liveF()[0];if(t2&&!BT.over)hurt(u,t2,.9,' Combo ')}
+ else if(id==='pierce')hurt(u,tg,1.2,' pierced ',true)}
+function cheerOn(u){BT.buff={r:3};blog((u.side==='p'?'You':u.name)+' inspired the whole party, damage up 25%')}
+function skillMenu(){var h='<h3>Skills (stamina '+G.sp+'/3)</h3>';
+ SKO.forEach(function(k){var s2=SK[k],ok=G.lv>=s2.lv;h+='<button class="btn" data-m="sk" data-a="'+k+'" '+(ok&&G.sp>=s2.sp?'':'disabled')+'>'+(ok?'':'🔒 ')+s2.n+' ('+s2.sp+'  stamina)<div class="mut">'+(ok?s2.d:'Lv.'+s2.lv+' unlocks')+'</div></button>'});
+ h+='<button class="btn" data-m="close">Cancel</button>';modal(h)}
+function healMenu(){var h='<h3>Heal whom?</h3>';BT.party.forEach(function(p,i){h+='<button class="btn" data-m="skh" data-a="'+i+'" '+(p.hp>0&&p.hp<p.max?'':'disabled')+'>'+esc(p.name)+'｜'+(p.hp>0?p.hp+'/'+p.max:'downed')+'</button>'});h+='<button class="btn" data-m="close">Cancel</button>';modal(h)}
+function healPlayer(i){var p=BT.party[i],Pl=BT.party[0];if(!p||p.hp<=0||BT.mode==='busy')return;G.sp-=SK.heal.sp;Pl.def=false;var v=Math.round(p.max*.35);p.hp=Math.min(p.max,p.hp+v);blog('You healed '+(p.side==='p'?'yourself':p.name)+', restoring '+v+' HP');endRound()}
+function allySkill(a){var lst=ASK[a.style]||[];
+ for(var n=0;n<lst.length;n++){var id=lst[n],sk=SK[id];if(id==='heal'&&G.lv>=sk.lv&&(a.sp|0)<sk.sp&&liveP().some(function(p){return p.hp<p.max*.6}))return false;if(G.lv<sk.lv||(a.sp|0)<sk.sp)continue;var fs=liveF();if(!fs.length)return false;
+  if(id==='heal'){var low=liveP().filter(function(p){return p.hp<p.max*.6}).sort(function(x,y){return x.hp/x.max-y.hp/y.max})[0];if(!low)continue;a.sp-=sk.sp;var v=Math.round(low.max*.35);low.hp=Math.min(low.max,low.hp+v);blog(a.name+' casts healing on '+(low.side==='p'?'You':low.name)+', restoring '+v+' HP');return true}
+  if(id==='cheer'){if(BT.buff&&BT.buff.r>0)continue;a.sp-=sk.sp;cheerOn(a);return true}
+  a.sp-=sk.sp;if(a.style==='Shieldbearer')a.taunt=true;castFoe(a,id,a.style==='Archer'?fs.slice().sort(function(x,y){return x.hp-y.hp})[0]:pick(fs));return true}
+ return false}
+function cmd(k,t){if(!BT||BT.over||BT.mode==='busy')return;var Pl=BT.party[0];
+ if(k==='skill'){skillMenu();return}
+ if(k==='heal'){if(G.lv<SK.heal.lv||G.sp<SK.heal.sp)return;healMenu();return}
+ if(Pl.hp<=0){endRound();return}Pl.def=false;
+ var sk=SK[k];
+ if(k==='cheer'){if(G.lv<sk.lv||G.sp<sk.sp){blog('Not enough stamina ('+sk.n+' needs '+sk.sp+')');return}G.sp-=sk.sp;cheerOn(Pl);endRound()}
+ else if(k==='atk'||(sk&&sk.t==='foe')){var fs=liveF();
+  if(sk&&(G.lv<sk.lv||G.sp<sk.sp)){blog('Not enough stamina ('+sk.n+' needs '+sk.sp+')');return}
+  if(fs.length>1&&t==null){BT.pending=k;BT.mode='tgt';upd();return}
+  var tg=t!=null?BT.foes[t]:fs[0];BT.mode='cmd';BT.pending=null;
+  if(sk){G.sp-=sk.sp;castFoe(Pl,k,tg)}else hurt(Pl,tg,1,' attacked ');endRound()}
+ else if(k==='def'){Pl.def=true;blog('You take a defensive stance; damage taken this round is halved');endRound()}
+ else if(k==='item'){itemMenu()}
+ else if(k==='flee'){
+  if(BT.cfg.type==='boss'){blog('The bronze door has shut - no escape!');return}
+  if(Math.random()<(BT.cfg.ctx==='sf'?0.7:0.6)){fled()}else{blog('You try to flee but are blocked!');endRound()}}}
+function itemMenu(){var h='<h3>Items</h3>',any=0;
+ ['potion','fire','water'].forEach(function(k){if(G.items[k]>0){any=1;h+='<button class="btn" data-m="it" data-a="'+k+'">'+ITEM[k].n+'  x'+G.items[k]+'<div class="mut">'+ITEM[k].note+'</div></button>'}});
+ if(!any)h+='<div class="mut">No usable items.</div>';h+='<button class="btn" data-m="close">Close</button>';modal(h)}
+function useItem(k){if(k==='fire'){closeModal();G.items.fire--;blog('You throw the oil flask!');liveF().forEach(function(f){var v=Math.max(1,22-f.armor);f.hp=Math.max(0,f.hp-v);blog(f.name+' took '+v+' fire damage'+(f.hp<=0?' and fell':''))});endRound();return}
+ var h='<h3>Use on whom?</h3>';BT.party.forEach(function(p,i){var ok=k==='potion'?p.hp>0:p.hp<=0;h+='<button class="btn" data-m="itt" data-a="'+k+'" data-t="'+i+'" '+(ok?'':'disabled')+'>'+esc(p.name)+'｜'+(p.hp>0?p.hp+'/'+p.max:'downed')+'</button>'});
+ h+='<button class="btn" data-m="close">Cancel</button>';modal(h)}
+function useItemOn(k,i){closeModal();var p=BT.party[i];G.items[k]--;
+ if(k==='potion'){p.hp=Math.min(p.max,p.hp+45);blog('The tonic let '+(p.side==='p'?'You':p.name)+' recover 45 HP')}
+ else{p.hp=Math.round(p.max*.4);blog('The spring water pulled '+(p.side==='p'?'You':p.name)+' back up from the ground')}endRound()}
+function allyActs(){BT.party.forEach(function(a){if(a.side!=='a'||a.hp<=0||BT.over)return;var fs=liveF();if(!fs.length)return;if(allySkill(a))return;
+ if(a.style==='Shieldbearer'){a.taunt=true;hurt(a,pick(fs),1,' struck ')}
+ else if(a.style==='Archer'){hurt(a,fs.slice().sort(function(x,y){return x.hp-y.hp})[0],1,' shot ')}
+ else if(a.style==='Priest'){a.cd--;var low=liveP().filter(function(p){return p.hp<p.max*.55}).sort(function(x,y){return x.hp/x.max-y.hp/y.max})[0];
+  if(low&&a.cd<=0){var h=18+4*G.lv;low.hp=Math.min(low.max,low.hp+h);a.cd=2;blog(a.name+' prays for '+(low.side==='p'?'You':low.name)+', restoring '+h+' HP')}else hurt(a,pick(fs),1,' swung a staff at ')}
+ else{hurt(a,pick(fs),1,' attacked ');if(Math.random()<.3){var s=pick(fs);s.stun=true;blog(a.name+'’s mechanism jammed '+s.name)}}})}
+function foeTargets(){var w=[];liveP().forEach(function(p){w.push(p);if(p.taunt)w.push(p)});return w}
+function foeActs(){BT.foes.forEach(function(f){if(f.hp<=0||BT.over)return;if(f.stun){f.stun=false;blog(f.name+' cannot move');return}
+ if(!liveP().length)return;var tg=pick(foeTargets()),r=BT.round;
+ if(f.name==='Statue Guard'){if(r%3===0){blog('The Statue Guard raises both fists -');hurt(f,tg,1.8,' smashed ')}else hurt(f,tg,1,' swung a fist at ')}
+ else if(f.name==='Bronze Wheel Colossus'){hurt(f,tg,1,' rolled over ');if(r%2===0){blog('The bronze wheels on the colossus spin wildly!');liveP().forEach(function(p){hurt(f,p,.5,'’s wheel-blades sweep across ')})}}
+ else if(f.name==='Mirror Warden'){var lp=liveP();if(r%3===0){var top=lp.slice().sort(function(a,b){return b.dmg-a.dmg})[0];blog('The Mirror Warden reflects your likenesses and raises the very same weapons -');hurt(f,top,1.6,'’s reflection slashes at ')}else{hurt(f,tg,.8,' attacked ');if(liveP().length)hurt(f,pick(liveP()),.8,'’s reflection strikes at ')}}
+ else if(f.name==='Weaver'){if(r%3===0){blog('The Weaver pulls all its threads tight -');liveP().forEach(function(p){hurt(f,p,.7,'’s threads lashed at  ')})}else if(r%4===0){hurt(f,tg,1);if(liveP().length)hurt(f,pick(liveP()),1)}else hurt(f,tg,1,' attacked ')}
+ else if(f.name==='Asterion'){var en=f.hp<f.max*.5,m=en?1.3:1;if(en&&!f.raged){f.raged=true;blog('Asterion let out a cry that was less a roar than a lament, and the walls shook with it.')}
+  if(r%4===0){blog('Asterion lowers its head, horns aimed at you -');hurt(f,BT.party[0].hp>0?BT.party[0]:tg,2*m,' charged ')}else{hurt(f,tg,m,' swung an axe at ');if(en&&r%2===0)hurt(f,pick(liveP()),m,' cut again at ')}}
+ else hurt(f,tg,1,' attacked ')})}
+function endRound(){if(!BT||BT.over)return;BT.mode='busy';upd();var wait=!window.__fast;
+ var steps=[function(){if(!liveF().length)return win();allyActs()},function(){if(!liveF().length)return win();foeActs()},function(){
+  if(!liveP().length)return lose();BT.party.forEach(function(p){p.taunt=false;if(p.side==='a'&&p.sp<3)p.sp++});if(BT.buff){BT.buff.r--;if(BT.buff.r<=0){BT.buff=null;blog('The inspiring effect has worn off')}}BT.round++;G.sp=Math.min(3,G.sp+1);BT.mode='cmd';blog('— Round '+BT.round+' —')}];
+ var i=0;(function go(){if(!BT||BT.over)return;steps[i++]();if(!BT||BT.over)return;if(i<steps.length){if(wait)setTimeout(go,380);else go()}})()}
+function sync(){var Pl=BT.party[0];G.hp=Math.max(Pl.hp,0);BT.party.forEach(function(p){if(p.ref)p.ref.hp=p.hp})}
+function noteDowns(){BT.party.forEach(function(p){if(p.ref&&p.hp<=0)R().downs[p.name]=true})}
+function finishBt(){G.battle=null;BT=null;DGMODE=null;persist();var e=document.getElementById('en');if(e)e.innerHTML=''}
+function surfaceReport(res,extra){var c=BT.cfg,cnt={};BT.foes.forEach(function(f){cnt[f.name]=(cnt[f.name]||0)+1});
+ var team=BT.party.slice(1).map(function(p){return p.name+(p.hp<=0?' (down)':'')}).join(', ');
+ return '[Battle Result] Surface｜'+(c.where||LOC[G.loc])+'｜Result: '+res+'\nEnemies: '+Object.keys(cnt).map(function(k){return k+' x'+cnt[k]}).join(', ')+'\nYour HP: '+G.hp+'/'+mhp()+(team?'\nCompanions: '+team:'')+(extra?'\n'+extra:'')}
+function win(){BT.over='win';sync();var c=BT.cfg,xp=0,pts=0,k={};BT.foes.forEach(function(f){var t=enemyStat(f.name,c.ctx==='dg'?G.f:0);xp+=t.xp;pts+=t.pts;k[f.name]=(k[f.name]||0)+1});
+ G.xp+=xp;G.pts+=pts;var lv0=G.lv;while(G.xp>=30*G.lv){G.xp-=30*G.lv;G.lv++;G.hp+=15}
+ BT.party.forEach(function(p){if(p.ref&&p.hp<=0){p.ref.hp=1;p.ref.state='injured'}});if(G.hp<=0)G.hp=1;
+ var drop='';if(Math.random()<.25){G.items.potion++;drop=', You pick up a bottle of tonic'}
+ var msg='Victory! XP +'+xp+', silver +'+pts+drop+(G.lv>lv0?'　⬆ Reached Lv.'+G.lv:'');
+ if(c.ctx==='dg'){noteDowns();var r=R();r.pts+=pts;r.xp+=xp;if(drop)addItem('potion');Object.keys(k).forEach(function(n){r.kills[n]=(r.kills[n]||0)+k[n]});
+  G.slain[G.f+':'+c.id]=1;
+  if(c.type==='boss'){G.guard[G.f]=true;delete G.slain[G.f+':'+c.id];if(G.bound.indexOf(G.f)<0)G.bound.push(G.f);CUR[fd(G.f).boss.y][fd(G.f).boss.x]='>';r.boss.push(c.foes[0]);r.bound.push(FL[G.f].n);if(G.f>=FL.length-1){G.cleared=true;G.ending='king'}
+   msg+='. The bronze door opened, and where the guardian fell a staircase leading down had grown. Ariadne’s thread has tied a knot on this floor.'}
+  setTimeout(function(){finishBt();say(msg);if(G.ending==='king'&&G.in)showEnding('king')},900)}
+ else{var txt=surfaceReport('Victory','Reward: XP +'+xp+', silver +'+pts+drop+(G.lv>lv0?', Reached Lv.'+G.lv:''));
+  setTimeout(function(){finishBt();sendOut(txt)},900)}}
+function fled(){BT.over='fled';sync();var c=BT.cfg;
+ if(c.ctx==='dg'){var lost=[];BT.party.forEach(function(p){if(p.ref&&p.hp<=0){p.ref.state='dead';lost.push(p.name);R().lost.push(p.name)}});
+  if(G.hp<=0)G.hp=1;var d=dir(),bx=G.x-DX[d],by=G.y-DY[d];if(CUR[by]&&CUR[by][bx]&&CUR[by][bx]!=='#'&&CUR[by][bx]!=='D'){G.x=bx;G.y=by;tx=G.x+.5;ty=G.y+.5}
+  setTimeout(function(){finishBt();say('You fled.'+(lost.length?lost.join(', ')+' was left behind, and the labyrinth slowly swallowed them.':''))},500)}
+ else{BT.party.forEach(function(p){if(p.ref&&p.hp<=0){p.ref.hp=1;p.ref.state='injured'}});if(G.hp<=0)G.hp=1;var txt=surfaceReport(' fled');setTimeout(function(){finishBt();sendOut(txt)},500)}}
+function lose(){BT.over='lose';sync();var c=BT.cfg;
+ if(c.ctx==='dg'){G.dead=true;noteDowns();var txt=summary('The whole party has fallen; no one can return to the surface. The run is over.');G.hp=0;
+  setTimeout(function(){finishBt();modal('<div data-lock><h3>Party wiped</h3><div class="mut">The last one fell. The labyrinth was quiet for a moment, and then it began to digest.</div><button class="btn amb" data-m="lostclose">See the ending</button></div>');window.__lostTxt=txt},700)}
+ else{G.hp=1;BT.party.forEach(function(p){if(p.ref&&p.hp<=0){p.ref.hp=1;p.ref.state='injured'}});var loss=Math.floor(G.pts*0.3);G.pts-=loss;var txt=surfaceReport('Defeat',(loss?'Silver lost '+loss+'. ':'')+'You were knocked down but not killed; you wake up badly wounded.');setTimeout(function(){finishBt();sendOut(txt)},700)}}
+document.addEventListener('click',function(e){var b=e.target.closest('[data-m="lostclose"]');if(!b)return;closeModal();var t=window.__lostTxt||'';G.in=false;persist();DGMODE=null;sendOut(t)});
+
+// ===== Surface events and shopping =====
+function buy(a){if(G.in||BT||G.loc!=='market'){toast('Supplies can only be bought on Market Street');return}var c=0;
+ if(a==='potion'){c=25;if(G.pts>=c){G.pts-=c;G.items.potion++;note('Bought an Olive Tonic')}}
+ else if(a==='fire'){c=35;if(G.pts>=c){G.pts-=c;G.items.fire++;note('Bought an Oil Flask')}}
+ else if(a==='thread'){c=30;if(G.pts>=c){G.pts-=c;G.items.thread=(G.items.thread||0)+1;note('Bought a Thread Ball')}}
+ else if(a==='oil'){c=15;if(G.pts>=c){G.pts-=c;G.oil=Math.min(30,G.oil+6);note('Bought Lamp Oil')}}
+ persist();render()}
+function upTarget(i){return i<0?G:G.roster[i]}
+function upgrade(a){if(G.in||BT||G.loc!=='smith'){toast('Upgrades are only available in the Artisan Quarter');return}
+ var p=String(a).split(':'),i=+p[0],k=p[1],t=upTarget(i);if(!t||(k!=='a'&&k!=='d'))return;if(i>=0&&t.state==='dead'){toast('The dead cannot be upgraded');return}
+ var key=k==='a'?'ua':'ud',n=t[key]|0;if(n>=UPMAX){toast('Upgraded to the maximum');return}
+ var c=upCost(k,n);if(G.pts<c){toast('Not enough silver');return}
+ G.pts-=c;t[key]=n+1;if(i<0&&k==='d'){}
+ note('Upgrade: '+(i<0?(G.name||'You'):t.name)+(k==='a'?' ATK':' DEF')+' Lv.'+(n+1));persist();render()}
+function apply(ev){var t=ev&&ev.type;
+ switch(t){
+ case'points':{var n=clamp(parseInt(ev.n,10)||0,-300,300);G.pts=Math.max(0,G.pts+n);return(n>=0?'+':'')+n+' silver'}
+ case'hp':{var d=clamp(parseInt(ev.n,10)||0,-30,30);G.hp=clamp(G.hp+d,1,mhp());return'HP '+(d>=0?'+':'')+d}
+ case'gift':{var k=String(ev.item||''),nn=clamp(parseInt(ev.n,10)||1,1,2);if(k==='oil'){G.oil=Math.min(30,G.oil+6*nn);return'Lamp Oil +'+6*nn}if(k==='potion'||k==='fire'){G.items[k]+=nn;return itemName(k)+' x'+nn}throw new Error('Cannot give this item')}
+ case'go':{if(G.in)return null;if(LOC[ev.place]){G.loc=ev.place;return'Go to '+LOC[ev.place]}throw new Error('Unknown place')}
+ case'open':{var OT={stat:'⌚ View status',shop:'🛒 Open shop',dg:'🧭 Labyrinth'},tb=String(ev.tab||'stat');if(!OT[tb])tb='stat';ST.go={tab:tb,label:OT[tb]};return''}
+ case'ally_join':{var nm=String(ev.name||'').trim().slice(0,12);if(!nm)throw new Error('The companion has no name');var p=person(nm);if(p&&p.state==='dead')throw new Error(nm+' is dead');
+  if(G.party.indexOf(nm)>=0)return null;if(G.party.length>=3)throw new Error('The party is full,'+nm+' cannot join');
+  if(!p){var st=ALLY[ev.style]?ev.style:(CORE[nm]||'Shieldbearer');p={name:nm,style:st,bond:clamp(parseInt(ev.bond,10)||0,0,3),hp:0,state:'ok'};p.hp=allyMax(p);G.roster.push(p)}
+  G.party.push(nm);return nm+' joined the party'}
+ case'ally':{var a=person(String(ev.name||''));if(!a)throw new Error('Not in the roster: '+ev.name);var out=[];
+  if(ev.bond!=null){var b=typeof ev.bond==='string'?BOND.indexOf(ev.bond):parseInt(ev.bond,10);if(b>=0&&b<=3){a.bond=b;out.push('Bond '+BOND[b])}}
+  return a.name+': '+(out.join(', ')||'updated')}
+ case'ally_leave':{var n2=String(ev.name||'');G.party=G.party.filter(function(n){return n!==n2});return n2+' left the party'}
+ case'battle':{if(G.in||G.dead)throw new Error('Cannot start a fight now');var foes=[];(Array.isArray(ev.enemies)?ev.enemies:[]).forEach(function(e){var k=String(e.k||e.kind||e.name||'Dock Thug'),n=clamp(parseInt(e.n,10)||1,1,4);for(var i=0;i<n&&foes.length<5;i++)foes.push(k)});
+  if(!foes.length)foes=['Dock Thug','Dock Thug'];startBattle({type:'sf',foes:foes,ctx:'sf',where:String(ev.where||'').slice(0,30),why:String(ev.why||'').slice(0,40)});return'Fight begins'}
+ default:throw new Error('Unknown type '+t)}}
+function parseLoose(txt){txt=String(txt||'').trim().replace(/^```\s*minos\s*/i,'').replace(/```\s*$/,'').trim();
+ try{return JSON.parse(txt)}catch(e){}try{return JSON.parse(txt.replace(/,\s*([}\]])/g,'$1').replace(/[“”]/g,'"'))}catch(e){}
+ var m=txt.match(/\{[\s\S]*\}/);if(m){try{return JSON.parse(m[0].replace(/,\s*([}\]])/g,'$1'))}catch(e){}}return null}
+function ingest(text){if(!G.started)return{status:'nosave',msg:'The Thread Band is not active yet'};
+ var h=djb(String(text))+':'+String(text).length;if(G.processed.indexOf(h)>=0)return{status:'done',msg:'Already processed'};
+ var o=parseLoose(text);if(!o)return{status:'error',msg:'Cannot understand this data'};
+ var evs=Array.isArray(o)?o:(o.events||(o.type?[o]:[]));var done=[],bad=[];
+ evs.forEach(function(ev){try{var r=apply(ev);if(r)done.push(r)}catch(x){bad.push(String(x.message||x))}});
+ G.processed.push(h);if(G.processed.length>200)G.processed.shift();persist();render();
+ var msg=done.join('; ')+(bad.length?' (skipped: '+bad.join(', ')+')':'');if(msg)toast('Band updated: '+msg);return{status:'done',msg:msg}}
+
+// ===== talking to the loader =====
+function post(m){if(P)try{P.postMessage(Object.assign({lt:1},m),'*')}catch(e){}}
+function compact(){var o={'Location':G.in?'Labyrinth: '+FL[G.f].n:LOC[G.loc],'Level':G.lv,'HP':G.hp+'/'+mhp(),'Silver':G.pts,'Lamp Oil':G.oil,'Attack Up':(G.ua|0),'Defense Up':(G.ud|0)};
+ var it={};['potion','fire','water','thread'].forEach(function(k){if(G.items[k])it[ITEM[k].n]=G.items[k]});if(Object.keys(it).length)o['Items']=it;
+ o['Party']=partyList().map(function(p){return{'Name':p.name,'Style':p.style,'Bond':BOND[p.bond],'ATK+':(p.ua|0),'DEF+':(p.ud|0),'Status':p.state==='ok'?'Fine':p.state==='injured'?'Wounded':'Dead'}});
+ var dead=G.roster.filter(function(r){return r.state==='dead'});if(dead.length)o['Dead']=dead.map(function(p){return p.name});
+ if(G.bound.length)o['Bound floors']=G.bound.map(function(f){return FL[f].n});
+ o['Skills']=learned();o['Manuscript']=G.pages.length+'/5';if(G.ending)o['Ending']=G.ending==='king'?'The King’s Command (Asterion slain)':'The Name (Asterion lives, the labyrinth has stopped)';
+ if(G.notes.length)o['New events']=G.notes.slice();if(G.dead)o['Status']='Whole party fallen - run over';return o}
+function tailFor(){var t='\n (The above is Knotted Thread Band data: the numbers here are authoritative - do not calculate them yourself. Every turn must have a time-and-place line, narrative text, 2-4 action buttons and a status bar.';
+
+ if(G.ending==='king')t+='The player has reached the "King’s Command" ending: Asterion is dead and the labyrinth has stopped. Please continue with the scene of reporting back to the Chancellor on the surface and its aftermath; from now on write only surface story - no more labyrinth exploration.';
+ if(G.ending==='name')t+='The player has reached the "Name" ending: defying the king’s command, they stopped the labyrinth with a name, and Asterion did not die. Please continue with the scene and consequences of facing the Chancellor and the palace back on the surface; from now on write only surface story - no more labyrinth exploration.';
+ if(G.dead)return t+'The player’s whole party has fallen. Please write the ending and provide no more action buttons.)';
+ if(G.battle&&G.battle.pending)return t+'The fight is running on the Thread Band; wait for the player to send the [Battle Result], then continue the story.)';
+ t+=G.ending?'You are now on the surface at "'+LOC[G.loc]+'". Write only the surface story. The labyrinth has stopped; do not let the player enter the labyrinth again.':'You are now on the surface at "'+LOC[G.loc]+'". Write only the surface story. Exploration and combat in the labyrinth are handled by the Thread Band. When the player wants to go down, ask them to press "Enter the Labyrinth" on the band themselves (the Thread Stair is in the Palace - Hall of Threads); do not write that the player has already entered the labyrinth.';
+ t+='If what the player sent this time is[Exploration Log]: Please continue with the scene of the player returning to the surface by the Thread Stair: describe their physical condition, the lamp oil and the companions’ reactions. The log’s contents and numbers are authoritative (the Thread Band is the source of truth) - do not change them and do not invent new enemies, treasure or floors; characters may read and discuss the manuscripts. End with action buttons for the surface story.';
+ t+='If it is a [Battle Result]: Write only the aftermath; do not replay it or change the result.';
+ t+='When enemies pounce, stop the narrative just before the fight; you may output a battle event in a ```minos code block - never write the fight to its end yourself. Buying, supplies and equipment upgrades can only be done by the player on the band; never write them on their behalf.)';return t}
+function arm(){if(!G.started){post({t:'arm',off:true});post({t:'pre',obj:compact(),tail:tailFor()});return}if(G.in&&!G.dead){post({t:'arm',off:true});return}post({t:'arm',obj:compact(),tail:tailFor()})}
+var FORM=null;
+function formFill(t){if(G.started||!t)return;var m=String(t).match(/Your name[：:]\s*([^\n]+)/i);if(!m)return;var nm=m[1].trim().slice(0,12);if(!nm||FORM===nm)return;FORM=nm;G.name=nm;var el=$('su-name');if(el&&!el.value)el.value=nm;toast('Name carried over from the start form:'+nm)}
+window.addEventListener('message',function(e){var d=e.data;if(!P||e.source!==P||!d||d.lt!==1)return;
+ if(d.t==='events'){var r=ingest(d.text);if(r.status!=='nosave'&&r.msg){String(r.msg).split(/[；;]/).forEach(function(x){x=x.trim();if(x&&ST.evs.indexOf(x)<0)ST.evs.push(x)});if(ST.evs.length>6)ST.evs=ST.evs.slice(-6);if(TAB==='story')render()}post({t:'ingested',id:d.id,status:r.status,msg:r.msg})}
+ else if(d.t==='form')formFill(d.text);
+ else if(d.t==='consumed'){if(G.notes.length){G.notes=[];persist()}}
+ else if(d.t==='fillres'){toast(d.s);if(/not found/i.test(d.s||'')){ST.busy=false;if(TAB==='story')render()}}
+ else if(d.t==='story')storyPush(d);
+ else if(d.t==='busy'){ST.busy=!!d.on;if(TAB==='story'){var v=$('view'),k=v.scrollTop;render();v.scrollTop=k}}});
+
+// ===== UI Base =====
+var TAB='story',dots={},ST={blocks:[],busy:false,id:'',evs:[],res:'',go:null},STdraft='';
+var TABS=[['story','Story'],['dg','Labyrinth'],['stat','Status'],['shop','Shop'],['sys','⚙']];
+function tabDot(k){if(k!==TAB)dots[k]=1}
+function toast(t){var el=$('toast');el.textContent=t;el.classList.add('on');clearTimeout(toast._t);toast._t=setTimeout(function(){el.classList.remove('on')},2600)}
+function setTab(k){TAB=k;delete dots[k];if(k!=='dg')DGMODE=null;render();$('view').scrollTop=0}
+function chips(){if(!G.started){$('chips').innerHTML='<span class="chip">Thread Band inactive</span>';return}
+ var c='<span class="chip hp">HP '+G.hp+'/'+mhp()+'</span><span class="chip pt">Silver '+G.pts+'</span><span class="chip">Lv.'+G.lv+'</span><span class="chip'+(G.oil<=3?' bad':' lo')+'">Lamp Oil '+G.oil+'</span>';
+ c+='<span class="chip">'+(G.in?FL[G.f].n:LOC[G.loc])+'</span>';if(G.dead)c='<span class="chip bad">The run is over</span>'+c;$('chips').innerHTML=c}
+function avatarHtml(p){var ch=esc((p&&p.name||'?').slice(0,1));return'<div class="av">'+ch+'</div>'}
+// ===== Story tab =====
+function storyHtml(){var h='<div class="sv">';
+ if(!G.in)h+='<figure class="s-pic"><img src="'+IMG_BASE+'loc/mn_loc_'+esc(G.loc)+'.webp" alt="" onerror="this.parentNode.remove()"></figure>';
+ if(!ST.blocks.length)h+='<div class="card mut">The newest AI reply from the chat is shown here. It appears shortly after you send your action.<br> (You can also press "Back to chat" at the top right at any time to use the original screen.)</div>';
+ var btns=[];
+ ST.blocks.forEach(function(b,i){
+  if(b.k==='st')h+='<div class="s-st">'+esc(b.t)+'</div>';
+  else if(b.k==='d')h+='<div class="s-d">'+esc(b.t).replace(/^([^\s：:「」『』"“”]{1,18})([：:])/,'<b>$1</b>$2').replace(/\n/g,'<br>')+'</div>';
+  else if(b.k==='p')h+='<p class="s-p">'+esc(b.t).replace(/\n/g,'<br>')+'</p>';
+  else if(b.k==='hr')h+='<div class="s-hr"></div>';
+  else if(b.k==='col')h+='<details class="s-col"><summary>'+esc(b.h||'Details')+'</summary><div>'+esc(b.t)+'</div></details>';
+  else if(b.k==='btn')btns.push([i,b])});
+ ST.evs.forEach(function(x){h+='<div class="s-ev">🧵 '+esc(x)+'</div>'});
+ if(ST.go&&!ST.busy&&!BT)h+='<button class="btn amb wide" data-tab="'+ST.go.tab+'" style="min-height:48px">'+ST.go.label+'</button>';
+ if(BT)h+='<button class="btn amb wide" data-tab="dg" style="min-height:52px;font-size:16px">⚔ Enter combat</button>';
+ if(G.in&&!BT)h+='<div class="card" style="border-color:#7a6430;margin-top:8px"><b style="color:var(--amb)">🧭 You are in the labyrinth</b><div class="mut">Exploration and combat happen on the "Labyrinth" tab. When you leave the labyrinth, this trip’s record is sent to the AI in one go.</div><button class="btn amb wide" data-tab="dg">Back to the labyrinth</button></div>';
+
+ if(G.ending&&!G.in&&!BT)h+='<div class="card" style="border-color:#7a6430"><b style="color:var(--amb)">'+(G.ending==='king'?'Ending: The King’s Command':'Ending: The Name')+'</b><div class="mut">The labyrinth has stopped, but the story can continue on the surface. To play again, you can start over.</div><button class="btn wide" data-act="reset">start over</button></div>';
+ if(ST.busy)h+='<div class="s-busy">⏳ AI replying...</div>';
+ if(btns.length&&!ST.busy&&!BT&&!G.in&&!G.dead)h+='<div class="s-opts">'+btns.map(function(x){return'<button class="btn" data-act="storyGo" data-arg="'+x[0]+'">'+esc(x[1].t)+'</button>'}).join('')+'</div>';
+ return h+'</div>'}
+function sbarHtml(){if(BT)return'<div class="mut">In combat: the result is sent back to the story automatically when it ends.</div>';
+ if(G.in)return'<div class="mut">🧭 You are exploring the labyrinth; you can only chat with the AI once you leave it.</div>';
+ if(G.dead)return'<div class="mut">This run has ended. To play again, go to ⚙ start over.</div>';
+ var lo='<div class="locs">'+Object.keys(LOC).map(function(k){return'<button class="btn'+(G.loc===k?' cur':'')+'" data-act="goLoc" data-arg="'+k+'"'+(ST.busy?' disabled':'')+'>'+LOC[k]+'</button>'}).join('')+'</div>';
+ var en=(G.loc==='guild'&&!G.ending)?'<button class="btn amb wide" data-act="enterAsk"'+(ST.busy?' disabled':'')+' style="margin:0 0 8px">🌀 Enter the Labyrinth (Thread Stair)</button>':'';
+ return lo+en+'<div class="s-bar"><textarea id="s-in" placeholder="Write what you want to do or say... (Shift+Enter to send)">'+esc(STdraft)+'</textarea><button class="btn amb" data-act="storySend"'+(ST.busy?' disabled':'')+'>Send</button></div>'}
+function bindStory(){var t=$('s-in');if(t){t.oninput=function(){STdraft=t.value};t.onkeydown=function(e){if(e.key==='Enter'&&(e.ctrlKey||e.metaKey||e.shiftKey)&&!e.isComposing){e.preventDefault();ACT.storySend()}}}}
+function storyPush(d){ST.blocks=(d.blocks||[]).map(function(b){if(b.k!=='btn')return b;var t=String(b.t||'').split('\n')[0].replace(/[<>]/g,'').trim().slice(0,40),s2=String(b.s||'').trim();if(!s2||s2.length>120||/[<>]|hc-|title=|bg=/.test(s2))s2=t;return{k:'btn',t:t,s:s2}}).filter(function(b){return b.k!=='btn'||b.t});ST.id=d.id;ST.busy=!!d.busy;
+ if(!d.busy&&G.started&&!G.in&&!BT&&G.ls!==d.id){var st0=null;ST.blocks.forEach(function(b){if(!st0&&b.k==='st')st0=b});
+  if(st0){var AL={port:['Knossos Harbor','Harbor','Harbour'],guild:['Hall of Threads'],market:['Market'],smith:['Artisans','Old Workshop','Workshop'],temple:['Temple']},hit=null;
+   String(st0.t).split(/[｜|]/).forEach(function(p){p=p.trim().toLowerCase();Object.keys(AL).forEach(function(k){AL[k].forEach(function(a){if(p.indexOf(a.toLowerCase())>=0)hit=k})})});
+   if(hit&&hit!==G.loc){G.loc=hit;var m0='Go to '+LOC[hit];if(ST.evs.indexOf(m0)<0)ST.evs.push(m0)}}
+  G.ls=d.id;persist()}
+ if(TAB==='story'){var v=$('view'),keep=v.scrollTop;render();v.scrollTop=keep}else{tabDot('story');render()}}
+var DESC=/^((i|i'm|i am)\s+)?((want|wanna|would like|am going|will|'ll|am ready|ready|let'?s|just|now|then|first|to)\s+)*(go|head|walk|climb|descend|enter|step)\s+(down\s+)?(into|to|in)?\s*(down\s+)?(the\s+)?(labyrinth|maze|thread stair|stairs?|dungeon|underground)(\s+now)?[.!]?$/i;
+function storySay(text,free){text=(text||'').trim();if(!text)return;if(ST.busy){toast('AI Still replying, please wait');return}
+ if(!G.in&&G.started&&!G.dead&&text.length<=48&&DESC.test(text)){if(G.loc==='guild'&&!G.ending){ACT.enterAsk()}else if(G.ending){toast('The labyrinth has stopped')}else{toast('The Thread Stair is in the Palace - Hall of Threads; please go back there first')}return}
+ if(G.dead){toast('This run has ended');return}if(!G.started){toast('Please activate the Thread Band first');return}if(G.in){toast('You cannot chat with the AI inside the labyrinth');return}
+ if(!free){G.idle++;if(G.idle>=16&&!BT){G.idle=0;note('The labyrinth stirs; monsters spill out of the Thread Stair and surge toward Knossos Harbor');startBattle({type:'sf',foes:['Root Rat','Root Rat','Moss Grub'],ctx:'sf',where:'Between the Thread Stair and the harbor',why:'Labyrinth surge'});toast('⚠ Labyrinth surge! Monsters have burst out');return}}
+ ST.evs=[];ST.res='';ST.go=null;ST.busy=true;persist();post({t:'fill',text:text,send:true,keep:true});if(!P){toast(' (test mode)'+text);ST.busy=false}if(TAB==='story')render()}
+// ===== Other tabs =====
+function statHtml(){var h='';if(G.dead)h+='<div class="card dead">The whole party has fallen; this run is over.</div>';
+ h+='<h3>You</h3><div class="card"><div class="row"><span>Name</span><b>'+esc(G.name)+'</b></div><div class="row"><span>Level</span><span>Lv.'+G.lv+' (XP '+G.xp+'/'+30*G.lv+')</span></div><div class="row"><span>HP</span><span>'+G.hp+' / '+mhp()+'</span></div><div class="bar"><i style="width:'+Math.round(G.hp/mhp()*100)+'%"></i></div><div class="row"><span>silver</span><b style="color:var(--amb)">'+G.pts+'</b></div><div class="row"><span>Lamp Oil</span><span>'+G.oil+' / 30</span></div><div class="row"><span>Attack Up</span><span>Lv.'+(G.ua|0)+' (damage '+pdmg()+')</span></div><div class="row"><span>Defense Up</span><span>Lv.'+(G.ud|0)+' (DEF '+parmor()+')</span></div></div>';
+ h+='<h3>Items</h3><div class="card">';var any=0;['potion','fire','water','thread'].forEach(function(k){if(G.items[k]){any=1;h+='<div class="row"><span>'+ITEM[k].n+'</span><span> x'+G.items[k]+'</span></div>'}});if(!any)h+='<div class="mut">No items.</div>';h+='</div>';
+ h+='<h3>Skills (shared by everyone, unlocked by level)</h3><div class="card">'+SKO.map(function(k){var s2=SK[k],ok=G.lv>=s2.lv;return'<div class="row"><span>'+(ok?'':'🔒 ')+s2.n+' ('+s2.sp+')</span><span>'+(ok?s2.d:'Lv.'+s2.lv+' unlocks')+'</span></div>'}).join('')+'</div>';
+ h+='<h3>Party ('+G.party.length+'/3)</h3><div class="card">';var pl=partyList();if(!pl.length)h+='<div class="mut">Currently traveling alone. Invite companions in the story; once they agree they will appear here.</div>';
+ pl.forEach(function(p){h+=allyRow(p)});h+='</div>';
+ var others=G.roster.filter(function(r){return G.party.indexOf(r.name)<0});if(others.length){h+='<h3>People you know</h3><div class="card">';others.forEach(function(p){h+=allyRow(p)});h+='</div>'}
+ h+='<h3>Threads and manuscripts</h3><div class="card"><div class="row"><span>Bound floors</span><span>'+(G.bound.length?G.bound.map(function(f){return FL[f].n}).join(', '):'None yet')+'</span></div><div class="row"><span>Manuscript pages</span><span>'+G.pages.length+' / 5</span></div>'+G.pages.slice().sort().map(function(n){return'<div class="log">'+esc(PAGES[n-1])+'</div>'}).join('')+'</div>';
+ return h}
+function allyRow(p){return'<div class="ally">'+avatarHtml(p)+'<div style="flex:1"><b>'+esc(p.name)+'</b><span class="tag">'+esc(p.style)+'</span><span class="tag">'+BOND[p.bond]+'</span><span class="tag '+(p.state==='ok'?'ok':'bad')+'">'+(p.state==='ok'?'Fine':p.state==='injured'?'Wounded':'Dead')+'</span><div class="mut">HP '+p.hp+'/'+allyMax(p)+'｜Attack Up '+(p.ua|0)+'｜Defense Up '+(p.ud|0)+'</div></div></div>'}
+function shopHtml(){if(G.in)return'<div class="card mut">You are in the labyrinth; the shop can only be used on the surface.</div>';var h='';
+ if(G.loc==='market'){h+='<h3>Market Street - Supplies</h3><div class="card">'+shopRow('Olive Tonic (owned '+G.items.potion+')',ITEM.potion.note,25,'potion')+shopRow('Oil Flask (owned '+G.items.fire+')',ITEM.fire.note,35,'fire')+shopRow('Thread Ball (owned '+(G.items.thread||0)+')',ITEM.thread.note,30,'thread')+shopRow('Lamp Oil (current '+G.oil+')',ITEM.oil.note,15,'oil')+'</div><div class="mut">Prices include the Market Street surge markup. What you buy is passed on to the AI the next time you speak.</div>'}
+ else if(G.loc==='smith'){h+='<h3>Artisan Quarter - Upgrades</h3><div class="mut">Weapons and armor are not swapped; spend silver to upgrade. Each attack level gives +3 damage and each defense level gives +1 damage reduction; max Lv.'+UPMAX+'. </div>';
+  h+='<div class="card">'+upRow(-1)+G.roster.map(function(r,i){return r.state==='dead'?'':upRow(i)}).join('')+'</div>'}
+ else h+='<div class="card mut">There is no shop here. Supplies are on "'+LOC.market+'", Equipment upgrades are in "'+LOC.smith+'". </div>';
+ return h}
+function upRow(i){var t=upTarget(i),nm=i<0?(G.name||'You'):t.name,a=t.ua|0,d=t.ud|0,h='<div style="padding:6px 0;border-top:1px solid var(--line)"><b>'+esc(nm)+'</b>'+(i>=0?'<span class="tag">'+esc(t.style)+'</span>':'')+'<div class="mut">ATK Lv.'+a+'/'+UPMAX+'　DEF Lv.'+d+'/'+UPMAX+'</div><div class="btns">';
+ h+=a>=UPMAX?'<button class="btn" disabled>Attack maxed</button>':'<button class="btn" data-m="upg" data-a="'+i+':a" '+(G.pts>=upCost('a',a)?'':'disabled')+'>Upgrade attack '+upCost('a',a)+'</button>';
+ h+=d>=UPMAX?'<button class="btn" disabled>Defense maxed</button>':'<button class="btn" data-m="upg" data-a="'+i+':d" '+(G.pts>=upCost('d',d)?'':'disabled')+'>Upgrade defense '+upCost('d',d)+'</button>';
+ return h+'</div></div>'}
+function shopRow(n,sub,c,k){return'<div class="shop-item"><div class="nm">'+esc(n)+'<small>'+esc(sub)+'</small></div><span class="price">'+c+'</span><button class="btn" data-m="buy" data-a="'+k+'" '+(G.pts>=c?'':'disabled')+'></button></div>'}
+function sysHtml(){return'<h3>Save</h3><div class="card"><div class="mut">Saves are kept in this browser on this device. Before switching devices, export your save code and import it on the new device.</div><textarea id="io" placeholder="save code"></textarea><div class="btns"><button class="btn" data-act="exp">Export</button><button class="btn" data-act="imp">Import</button></div></div>'+
+ '<h3>On returning to the surface</h3><div class="card"><div class="mut">When you return to the surface, the exploration record is sent to the AI automatically - or would you rather have it only filled into the input box so you can send it yourself?</div><button class="btn wide'+(G.auto?' amb':'')+'" data-act="autoSend">'+(G.auto?'Auto-send (tap to switch to manual)':'Manual send (tap to switch to auto)')+'</button></div>'+
+ '<h3>Paste an AI block manually</h3><div class="card"><div class="mut">If the band did not automatically pick up the minos block in the AI’s reply, copy and paste it here.</div><textarea id="man"></textarea><button class="btn wide" data-act="manual">Apply</button></div>'+
+ '<h3>Help</h3><div class="card"><button class="btn wide" data-act="tour">Replay the Thread Band tour</button></div>'+
+ '<h3>Test mode</h3><div class="card"><div class="mut">For author testing: each press, silver +500, Level +1. </div><button class="btn wide" data-act="cheat">Test bonus</button></div>'+
+ '<h3>start over</h3><div class="card"><div class="mut">Clears the progress on this device. Your chat history is not deleted; we recommend starting a new chat as well.</div><button class="btn red wide" data-act="reset">Clear progress and start over</button></div><div class="mut">Band version '+VER+'</div>'}
+function setupHtml(){return'<h3>Activate the Band</h3><div class="card"><div class="mut">Ariadne fastens a red Knotted Thread Band on your wrist; each knot records one of your stats.</div><label>Your name</label><input id="su-name" maxlength="12" placeholder="the same as on the start form" value="'+esc(G.name)+'"></div><button class="btn amb wide" data-act="start">activate the Thread Band</button>'}
+// ===== Labyrinth tab =====
+function entryHtml(){var h='<h3>Thread Stair</h3><div class="card"><div class="mut">The entrance to the Minos Labyrinth is in the sunken courtyard behind the Palace - Hall of Threads. Once inside, you walk, open doors and fight in first person yourself; during that time you will not chat with the AI; the exploration record is handed over only when you leave.</div>';
+ h+='<div class="row"><span>Bound floors</span><span>'+(G.bound.length?G.bound.map(function(f){return'Floor '+f}).join(', '):'None yet')+'</span></div><div class="row"><span>Lamp Oil</span><span>'+G.oil+'</span></div>';
+ if(G.ending)h+='<div class="mut" style="margin-top:6px">The labyrinth has stopped.</div>';else if(G.loc==='guild'&&!G.dead)h+='<button class="btn amb wide" data-act="enterAsk">🌀 Enter the Labyrinth</button>';else h+='<div class="mut" style="margin-top:6px">First go to "'+LOC.guild+'", to go down the Thread Stair.</div>';
+ return h+'</div>'}
+function dgShell(){return'<div><div class="vw"><canvas id="dv" width="480" height="300"></canvas><div id="en"></div></div><div class="drow"><div id="party"></div><canvas id="dm" width="132" height="132"></canvas></div><div id="dstat"></div><div id="ctrl"></div><div id="dlog"></div></div>'}
+function renderDg(v){var want=(G.in||BT)?'shell':'entry';if(DGMODE!==want){v.innerHTML=want==='shell'?dgShell():entryHtml();DGMODE=want;if($('ctrl'))$('ctrl')._h=null}if(want==='shell')dgUpdate()}
+function dgUpdate(){if(!$('party'))return;var h='';
+ if(BT)BT.party.forEach(function(p){h+='<div class="pc'+(p.hp<=0?' down':'')+(p.def?' def':'')+'"><b>'+esc(p.name)+' <small>'+esc(p.style)+'</small></b><small>HP '+p.hp+'/'+p.max+(p.side==='p'?'｜Stamina '+G.sp+'/3':'｜Stamina '+p.sp+'/3')+(BT.buff&&BT.buff.r>0?' ⬆':'')+'</small><div class="hb"><i style="width:'+(p.hp/p.max*100)+'%"></i></div></div>'});
+ else{h+='<div class="pc"><b>'+esc(G.name||'You')+' <small>Lv.'+G.lv+'</small></b><small>HP '+G.hp+'/'+mhp()+'</small><div class="hb"><i style="width:'+(G.hp/mhp()*100)+'%"></i></div></div>';
+  partyList().forEach(function(a){if(a.state==='dead')return;h+='<div class="pc'+(a.state==='injured'?' down':'')+'"><b>'+esc(a.name)+' <small>'+esc(a.style)+(a.state==='injured'?' - Wounded':'')+'</small></b><small>HP '+a.hp+'/'+allyMax(a)+'</small><div class="hb"><i style="width:'+(a.hp/allyMax(a)*100)+'%"></i></div></div>'})}
+ $('party').innerHTML=h;
+ $('dstat').innerHTML=(G.in?'<span>'+FL[G.f].n+'</span>':'<span>Surface: '+(BT&&BT.cfg.where?esc(BT.cfg.where):LOC[G.loc])+'</span>')+'<span>Silver '+G.pts+'</span><span class="'+(G.oil<=3?'warn':'')+'">Lamp Oil '+G.oil+(isDark()?' (dark)':'')+'</span><span>key '+G.keys+'</span><span>Manuscript '+G.pages.length+'/5</span><span>+'+(G.ua|0)+' +'+(G.ud|0)+'</span>';
+ var lg=BT?BT.log:DL;$('dlog').innerHTML=lg.slice(0,8).map(function(x){return'<div>'+esc(x)+'</div>'}).join('');
+ var c='';
+ if(BT){var en='';BT.foes.forEach(function(f,i){var fb=spriteUrl(f.shape,f.col);en+='<div class="ec'+(f.hp<=0?' dead':'')+(f.boss?' boss':'')+(BT.mode==='tgt'&&f.hp>0?' sel':'')+'" data-tgt="'+i+'"><img src="'+IMG_BASE+'en/mn_e_'+f.img+'.webp" data-fb="'+fb+'" alt=""><div>'+esc(f.name)+'</div><div class="hb"><i style="width:'+(f.hp/f.max*100)+'%"></i></div></div>'});$('en').innerHTML=en;
+  if(BT.over)c='<div class="cmd"><button class="btn wide" disabled>……</button></div>';
+  else if(BT.mode==='busy')c='<div class="cmd"><button class="btn wide" disabled>⏳ acting...</button></div>';
+  else if(BT.mode==='tgt')c='<div class="cmd"><button class="btn wide amb" disabled>Tap the enemy to attack</button><button class="btn wide" data-c="cancel">Cancel</button></div>';
+  else c='<div class="cmd"><button class="btn" data-c="atk">⚔ Attack</button><button class="btn" data-c="skill">✨ Skills</button><button class="btn" data-c="def">🛡 Defend</button><button class="btn" data-c="item">🎒 Items</button><button class="btn red" data-c="flee">🏃 Flee</button></div>'}
+ else{$('en').innerHTML='';c='<div class="pad"><button class="btn" data-a="tl">↰ Turn left</button><button class="btn" data-a="fwd">↑ Forward</button><button class="btn" data-a="tr">↱ Turn right</button><button class="btn" data-a="sl">← Left</button><button class="btn" data-a="back">↓ Back</button><button class="btn" data-a="sr">→ Right</button>';
+  if(onSpring())c+='<button class="btn amb wide" data-c="spring">🕯 Thread Spring (rest / teleport / surface)</button>';
+  if(G.items.thread>0)c+='<button class="btn wide" data-m="thread">🧶 Thread ball (return to surface) x'+G.items.thread+'</button>';
+  if(onStairs())c+='<button class="btn amb wide" data-c="descend">▼ Descend the stairs</button>';c+='</div>'}
+ if($('ctrl')._h!==c){$('ctrl')._h=c;$('ctrl').innerHTML=c}}
+function upd(){chips();if(TAB==='dg'&&DGMODE==='shell')dgUpdate()}
+document.addEventListener('pointerdown',function(e){var b=e.target.closest('[data-a]');if(b&&!b.dataset.m&&TAB==='dg'){e.preventDefault();act(b.dataset.a)}});
+document.addEventListener('click',function(e){var c=e.target.closest('[data-c]');
+ if(c){var k=c.dataset.c;if(k==='spring')springMenu();else if(k==='descend')modal('<h3>Go down the stairs?</h3><button class="btn amb" data-m="descend">Descend</button><button class="btn" data-m="close">Wait a bit</button>');
+  else if(k==='cancel'){BT.mode='cmd';BT.pending=null;upd()}else cmd(k);return}
+ var t=e.target.closest('[data-tgt]');if(t&&BT&&BT.mode==='tgt'){var i=+t.dataset.tgt;if(BT.foes[i].hp>0)cmd(BT.pending,i)}});
+addEventListener('keydown',function(e){if($('modal').classList.contains('on')||BT||TAB!=='dg'||!G.in)return;var m={ArrowUp:'fwd',w:'fwd',W:'fwd',ArrowDown:'back',s:'back',S:'back',a:'sl',A:'sl',d:'sr',D:'sr',q:'tl',Q:'tl',ArrowLeft:'tl',e:'tr',E:'tr',ArrowRight:'tr'}[e.key];if(m){e.preventDefault();act(m)}});
+document.addEventListener('error',function(e){var im=e.target;if(im&&im.tagName==='IMG'&&im.dataset&&im.dataset.fb&&im.src.indexOf('data:')!==0){im.classList.add('px');im.src=im.dataset.fb}},true);
+
+function render(){chips();
+ $('tabs').innerHTML=G.started?TABS.map(function(t){return'<button data-tab="'+t[0]+'" class="'+(t[0]===TAB?'on':'')+(dots[t[0]]?' dot':'')+'">'+t[1]+'</button>'}).join(''):'';
+ var v=$('view'),sb=$('sbar'),sh=(G.started&&TAB==='story')?sbarHtml():'';if(sb._h!==sh){sb._h=sh;sb.innerHTML=sh}
+ if(!G.started){v.innerHTML=setupHtml();return}
+ if(TAB==='dg'){renderDg(v);return}DGMODE=null;
+ v.innerHTML=({story:storyHtml,stat:statHtml,shop:shopHtml,sys:sysHtml}[TAB]||storyHtml)();
+ if(TAB==='story')bindStory()}
+document.addEventListener('click',function(e){var b=e.target.closest('[data-tab]');if(b){setTab(b.dataset.tab);return}
+ var a=e.target.closest('[data-act]');if(!a)return;var f=ACT[a.dataset.act];if(f)f(a.dataset.arg,a)});
+var ACT={
+ start:function(){var nm=($('su-name').value||'').trim();if(!nm){toast('Please enter your name');return}G.name=nm;G.started=true;persist();post({t:'hint',s:''});TAB='story';render();showTour()},
+ goLoc:function(k){if(ST.busy||!LOC[k])return;G.loc=k;persist();storySay('I head to '+LOC[k]+'. ')},
+ storyGo:function(i){var b=ST.blocks[+i];if(b)storySay(b.s||b.t)},
+ storySend:function(){var t=$('s-in'),v=t?t.value:STdraft;STdraft='';storySay(v)},
+ enterAsk:function(){if(G.ending)return;var fl=startFloors(),b='';fl.forEach(function(f){b+='<button class="btn'+(f===fl[fl.length-1]?' amb':'')+'" data-m="enter" data-a="'+f+'">'+(f===1?'Descend from Floor 1':'Go straight to '+FL[f].n)+'</button>'});
+  modal('<div data-lock><h3>Go down the Thread Stair?</h3><div class="mut">Once you enter the labyrinth you will not chat with the AI; the exploration record is sent only when you leave. Oil '+G.oil+'. '+(G.oil<5?'<br>⚠ Lamp oil is low; we suggest buying some at the shop first.':'')+'<br>On a bound floor you can follow the thread straight to the start of the next floor.</div>'+b+'<button class="btn" data-m="close">Prepare a bit more</button></div>')},
+ autoSend:function(){G.auto=!G.auto;persist();render()},
+ cheat:function(){G.pts+=500;G.lv++;G.hp=mhp();persist();render();toast('silver +500, Level '+G.lv)},
+ exp:function(){$('io').value=btoa(unescape(encodeURIComponent(JSON.stringify(G))));$('io').select();toast('Exported - please copy the save code')},
+ imp:function(){try{var o=JSON.parse(decodeURIComponent(escape(atob($('io').value.trim()))));if(!o||o.v!==1)throw 0;G=o;BT=null;persist();if(G.in){CUR=makeCur(G.f);snapView()}render();toast('Import complete')}catch(e){toast('Invalid save code')}},
+ manual:function(){var r=ingest($('man').value);toast(r.status==='done'?'Applied':r.msg)},
+ tour:function(){showTour()},
+ reset:function(){modal('<div data-lock><h3>Really start over?</h3><div class="mut">All progress on this device will be cleared.</div><div class="btns"><button class="btn red" data-act="doReset">Clear</button><button class="btn" data-m="close">Cancel</button></div></div>')},
+ doReset:function(){G=fresh();BT=null;CUR=null;FD={};DL=[];closeModal();persist();TAB='story';DGMODE=null;render()},
+ tourNext:function(i){showTour(+i)},tourEnd:function(){G.tourDone=true;persist();closeModal()}};
+var TOUR=[['🧵 Knotted Thread Band','This is your terminal. The top bar always shows HP, silver, level, lamp oil and location. All numbers are recorded by the Thread Band, and the AI will not change them.'],['Surface: Story','On the "Story" tab you chat with the AI. Use the buttons below to travel between places. Buy potions, oil flasks and lamp oil on Market Street; the Artisan Quarter upgrades everyone’s attack and defense (equipment is not swapped).'],['Labyrinth: walk it yourself','Press "Enter the Labyrinth" at the Palace - Hall of Threads to enter the first-person labyrinth. During that time you will not chat with the AI. Walk into a monster to start a fight; walk to a blue Thread Spring to rest, teleport or return to the surface.'],['Combat','Round menu: Attack, Skill, Defend, Item, Flee. Skills cost stamina and unlock by level; every round restores 1 stamina point; companions have their own stamina and act and use skills on their own. During a guardian fight the bronze door shuts - no escape.'],['Leaving the labyrinth','When you return to the surface, this trip’s exploration record is sent to the AI in one go, and the AI continues with the scene of your return. If the whole party has fallen, the run is over.'],['lamp oil and spring water','Lamp oil burns down every few steps; when it runs out you are in darkness: no map, weaker fighting power. Resting at a spring makes this floor’s monsters grow back.']];
+function showTour(i){i=i||0;var t=TOUR[i];modal('<div data-lock><h4>'+t[0]+' ('+(i+1)+'/'+TOUR.length+')</h4><div>'+t[1]+'</div><div class="btns">'+(i<TOUR.length-1?'<button class="btn amb" data-act="tourNext" data-arg="'+(i+1)+'">Next</button><button class="btn" data-act="tourEnd">Skip</button>':'<button class="btn amb" data-act="tourEnd">begin</button>')+'</div></div>')}
+
+// ===== sprites and the first-person view =====
+function mk(fn){var c=document.createElement('canvas');c.width=c.height=64;fn(c.getContext('2d'));return c}
+function eye(g,x,y,r){g.fillStyle='#fff';g.beginPath();g.arc(x,y,r,0,7);g.fill();g.fillStyle='#111';g.beginPath();g.arc(x+1,y+1,r*.5,0,7);g.fill()}
+var DRAW={
+ blob:function(g,c){g.fillStyle=c;g.beginPath();g.moveTo(6,58);g.quadraticCurveTo(4,16,32,10);g.quadraticCurveTo(60,16,58,58);g.closePath();g.fill();g.strokeStyle='rgba(0,0,0,.6)';g.lineWidth=2;g.stroke();g.fillStyle='rgba(255,255,255,.3)';g.beginPath();g.ellipse(22,24,6,3.5,-.5,0,7);g.fill();eye(g,23,36,6);eye(g,41,36,6);g.strokeStyle='rgba(0,0,0,.7)';g.lineWidth=2.5;g.beginPath();g.arc(32,46,8,.15*Math.PI,.85*Math.PI);g.stroke()},
+ ghost:function(g,c){g.globalAlpha=.88;g.fillStyle=c;g.beginPath();g.moveTo(12,28);g.quadraticCurveTo(12,6,32,6);g.quadraticCurveTo(52,6,52,28);g.lineTo(52,58);g.lineTo(43,49);g.lineTo(32,58);g.lineTo(21,49);g.lineTo(12,58);g.closePath();g.fill();g.globalAlpha=1;g.fillStyle='#0a0a12';g.beginPath();g.ellipse(24,28,4,6,0,0,7);g.ellipse(40,28,4,6,0,0,7);g.fill();g.beginPath();g.ellipse(32,42,5,4,0,0,7);g.fill()},
+ quad:function(g,c){g.fillStyle=c;g.beginPath();g.ellipse(30,42,20,11,0,0,7);g.fill();g.beginPath();g.arc(50,34,9,0,7);g.fill();g.beginPath();g.moveTo(46,27);g.lineTo(49,17);g.lineTo(54,27);g.fill();g.fillRect(14,48,5,10);g.fillRect(26,48,5,10);g.fillRect(38,48,5,10);g.strokeStyle=c;g.lineWidth=3;g.beginPath();g.moveTo(10,40);g.quadraticCurveTo(2,30,6,22);g.stroke();g.fillStyle='#e04030';g.beginPath();g.arc(53,33,2.2,0,7);g.fill();g.fillStyle='#fff';g.fillRect(55,38,2,3)},
+ bug:function(g,c){g.fillStyle=c;g.beginPath();g.ellipse(32,38,20,15,0,0,7);g.fill();g.strokeStyle='rgba(0,0,0,.55)';g.lineWidth=2;g.beginPath();g.moveTo(32,24);g.lineTo(32,52);g.stroke();g.beginPath();g.arc(32,22,8,0,7);g.fill();g.stroke();g.strokeStyle=c;g.lineWidth=2.5;for(var i=0;i<3;i++){g.beginPath();g.moveTo(14,34+i*7);g.lineTo(5,40+i*8);g.moveTo(50,34+i*7);g.lineTo(59,40+i*8);g.stroke()}eye(g,28,21,3);eye(g,36,21,3)},
+ skel:function(g,c){g.strokeStyle=c;g.lineWidth=3;g.fillStyle=c;g.beginPath();g.arc(32,14,9,0,7);g.fill();g.fillStyle='#111';g.fillRect(27,12,4,5);g.fillRect(33,12,4,5);g.beginPath();g.moveTo(32,23);g.lineTo(32,44);g.stroke();for(var i=0;i<4;i++){g.beginPath();g.moveTo(22,28+i*5);g.lineTo(42,28+i*5);g.stroke()}g.beginPath();g.moveTo(32,44);g.lineTo(23,60);g.moveTo(32,44);g.lineTo(41,60);g.moveTo(22,28);g.lineTo(12,44);g.moveTo(42,28);g.lineTo(52,40);g.stroke()},
+ human:function(g,c){g.fillStyle='#d8b890';g.beginPath();g.arc(32,14,8,0,7);g.fill();g.fillStyle=c;g.fillRect(20,22,24,22);g.fillRect(22,44,8,14);g.fillRect(34,44,8,14);g.fillRect(12,24,8,18);g.fillRect(44,24,8,18);g.fillStyle='#1a1a1a';g.fillRect(28,12,2,2);g.fillRect(34,12,2,2)},
+ giant:function(g,c){g.fillStyle=c;g.fillRect(14,24,36,32);g.fillRect(22,6,20,18);g.fillRect(4,26,10,26);g.fillRect(50,26,10,26);g.fillRect(18,56,10,6);g.fillRect(36,56,10,6);g.fillStyle='#ffcf5a';g.fillRect(26,12,4,4);g.fillRect(34,12,4,4);g.strokeStyle='rgba(0,0,0,.5)';g.lineWidth=2;g.strokeRect(14,24,36,32);g.strokeRect(22,6,20,18)},
+ key:function(g){g.strokeStyle='#e8c24a';g.lineWidth=5;g.beginPath();g.arc(32,22,10,0,7);g.stroke();g.fillStyle='#e8c24a';g.fillRect(30,30,5,26);g.fillRect(35,44,9,4);g.fillRect(35,51,6,4)},
+ chest:function(g){g.fillStyle='#7a4a1e';g.fillRect(8,34,48,24);g.fillStyle='#945a26';g.beginPath();g.moveTo(8,36);g.quadraticCurveTo(32,12,56,36);g.closePath();g.fill();g.fillStyle='#d8a93a';g.fillRect(8,40,48,4);g.fillRect(27,38,10,12);g.fillStyle='#3a2410';g.fillRect(31,42,2,5);g.strokeStyle='#2a1808';g.lineWidth=2;g.strokeRect(8,34,48,24)},
+ page:function(g){g.fillStyle='#d8c8a0';g.fillRect(16,10,32,44);g.strokeStyle='#7a6a48';g.lineWidth=2;g.strokeRect(16,10,32,44);g.fillStyle='#7a6a48';for(var i=0;i<6;i++)g.fillRect(21,17+i*6,i%3===2?14:22,2);g.fillStyle='#a8302a';g.beginPath();g.arc(40,46,4,0,7);g.fill()},
+ spring:function(g){g.fillStyle='#2a3a48';g.beginPath();g.ellipse(32,46,26,10,0,0,7);g.fill();g.fillStyle='#4fa8d8';g.beginPath();g.ellipse(32,44,21,7,0,0,7);g.fill();g.fillStyle='rgba(200,240,255,.5)';g.beginPath();g.ellipse(26,42,8,2.5,0,0,7);g.fill();g.strokeStyle='#c8403a';g.lineWidth=2.5;g.beginPath();g.moveTo(32,44);g.bezierCurveTo(10,30,50,22,32,8);g.stroke()},
+ stairs:function(g){for(var i=0;i<5;i++){g.fillStyle='rgb('+(70-i*10)+','+(62-i*9)+','+(52-i*8)+')';g.fillRect(8+i*2,26+i*7,48-i*4,8)}g.strokeStyle='#e0b95a';g.lineWidth=2;g.strokeRect(8,26,48,36)}
+};
+var SPC={};function spr(shape,col){var k=shape+(col||'');return SPC[k]||(SPC[k]=mk(function(g){DRAW[shape](g,col)}))}
+function spriteUrl(shape,col){return spr(shape,col).toDataURL()}
+var ENI={};function enSpr(code,fb){if(!code||typeof Image==='undefined')return fb;var e=ENI[code];if(!e){e=ENI[code]={c:null};try{var im=new Image();im.onload=function(){try{var c=document.createElement('canvas');c.width=c.height=128;var g=c.getContext('2d');g.imageSmoothingQuality='high';g.drawImage(im,0,0,128,128);e.c=c}catch(x){}};im.src=IMG_BASE+'en/mn_e_'+code+'.webp'}catch(x){}}return e.c||fb}
+var SCALE={mon:.8,boss:1.05,chest:.6,key:.4,page:.45,spring:.6,stairs:.8};
+var cv=null,ctx=null,W=480,H=300,tmpC=document.createElement('canvas');tmpC.width=W;tmpC.height=H;var tmp=tmpC.getContext('2d'),zbuf=new Float32Array(W),FOV=.8,mini=null,mcv=null;
+var sh=function(r,g,b,f){return'rgb('+(Math.min(255,r*f)|0)+','+(Math.min(255,g*f)|0)+','+(Math.min(255,b*f)|0)+')'};var RD=Math.round;
+function brick(x,top,lh,wx,f,mx,my,side,wc){ctx.fillStyle=sh(wc[0]*.28,wc[1]*.28,wc[2]*.28,f);ctx.fillRect(x,RD(top),1,RD(lh));var rows=6,ch=lh/rows;
+ for(var i=0;i<rows;i++){var u=wx*3+((i&1)?.5:0),bj=Math.floor(u);if(u-bj<.06)continue;var h=((mx*374761393+my*668265263+bj*2246822519+i*3266489917+side*97)>>>0)%100/100,v=.82+h*.3;
+  ctx.fillStyle=sh(wc[0]*v,wc[1]*v,wc[2]*v,f*(side?.72:1));ctx.fillRect(x,RD(top+i*ch+ch*.07),1,Math.max(1,RD(ch*.86)))}}
+function doorDraw(x,top,lh,wx,f,side,dc){var k=f*(side?.75:1),dark=(wx*5)%1<.07;ctx.fillStyle=dark?sh(dc[0]*.35,dc[1]*.35,dc[2]*.35,k):sh(dc[0],dc[1],dc[2],k);ctx.fillRect(x,RD(top),1,RD(lh));
+ ctx.fillStyle=sh(52,52,58,k);ctx.fillRect(x,RD(top+lh*.16),1,Math.max(1,RD(lh*.06)));ctx.fillRect(x,RD(top+lh*.78),1,Math.max(1,RD(lh*.06)));
+ if(wx>.72&&wx<.8){ctx.fillStyle=sh(210,175,70,k);ctx.fillRect(x,RD(top+lh*.46),1,Math.max(1,RD(lh*.08)))}}
+function sprites(){var f=G.f,d=fd(f),o=[];
+ d.feats.forEach(function(ft){if(!feAlive(f,ft))return;var img;if(ft.type==='mon'||ft.type==='boss'){var es=enemyStat(ft.foes[0]);img=enSpr(es.img,spr(es.shape,es.col))}else img=spr(ft.type);o.push({x:ft.x,y:ft.y,img:img,sc:SCALE[ft.type],bob:ft.type==='mon'||ft.type==='boss'})});
+ o.push({x:1,y:1,img:spr('spring'),sc:SCALE.spring});if(!FL[f].boss||G.guard[f])o.push({x:d.boss.x,y:d.boss.y,img:spr('stairs'),sc:SCALE.stairs});return o}
+function renderScene(t){if(!BT){var e0=document.getElementById('en');if(e0&&e0.firstChild)e0.innerHTML=''}if(!G.in||!CUR){ctx.fillStyle='#0a0806';ctx.fillRect(0,0,W,H);var gg=ctx.createLinearGradient(0,0,0,H);gg.addColorStop(0,'#14100b');gg.addColorStop(1,'#0a0806');ctx.fillStyle=gg;ctx.fillRect(0,0,W,H);ctx.fillStyle='#8d8168';ctx.font='18px sans-serif';ctx.textAlign='center';ctx.fillText(BT&&BT.cfg.where?BT.cfg.where:LOC[G.loc],W/2,40);ctx.textAlign='start';
+  if(BT){ctx.fillStyle='rgba(0,0,0,.35)';ctx.fillRect(0,0,W,H)}if(flash>0){ctx.fillStyle='rgba(190,30,20,'+flash*.4+')';ctx.fillRect(0,0,W,H)}return}
+ var pal=PAL[G.f],flick=1+.05*Math.sin(t*.011)+.04*Math.sin(t*.027+1);
+ var gc=ctx.createLinearGradient(0,0,0,H/2);gc.addColorStop(0,pal.ce[0]);gc.addColorStop(1,pal.ce[1]);ctx.fillStyle=gc;ctx.fillRect(0,0,W,H/2);
+ var gf=ctx.createLinearGradient(0,H/2,0,H);gf.addColorStop(0,pal.fl[0]);gf.addColorStop(1,pal.fl[1]);ctx.fillStyle=gf;ctx.fillRect(0,H/2,W,H/2);
+ var dirX=Math.cos(ang),dirY=Math.sin(ang),plX=-dirY*FOV,plY=dirX*FOV,fk=isDark()?.9:.3;
+ for(var x=0;x<W;x++){var cam=2*x/W-1,rdx=dirX+plX*cam,rdy=dirY+plY*cam,mx=Math.floor(px),my=Math.floor(py),side=0,ddx=Math.abs(1/rdx),ddy=Math.abs(1/rdy),sx,sy,sdx,sdy;
+  if(rdx<0){sx=-1;sdx=(px-mx)*ddx}else{sx=1;sdx=(mx+1-px)*ddx}if(rdy<0){sy=-1;sdy=(py-my)*ddy}else{sy=1;sdy=(my+1-py)*ddy}
+  for(var n=0;n<40;n++){if(sdx<sdy){sdx+=ddx;mx+=sx;side=0}else{sdy+=ddy;my+=sy;side=1}var c=CUR[my]&&CUR[my][mx];if(c==='#'||c==='D'||c===undefined)break}
+  var perp=side===0?sdx-ddx:sdy-ddy;zbuf[x]=perp;var wx=side===0?py+perp*rdy:px+perp*rdx;wx-=Math.floor(wx);
+  var lh=H/Math.max(perp,.05),top=H/2-lh/2,f=Math.min(1.1,1.4/(1+fk*perp+.09*perp*perp))*flick;
+  if(CUR[my]&&CUR[my][mx]==='D')doorDraw(x,top,lh,wx,f,side,pal.door);else brick(x,top,lh,wx,f,mx,my,side,pal.w)}
+ var inv=1/(plX*dirY-dirX*plY);
+ var list=sprites().map(function(s){var rx=s.x+.5-px,ry=s.y+.5-py;return{s:s,tx:inv*(dirY*rx-dirX*ry),ty:inv*(-plY*rx+plX*ry)}}).filter(function(o){return o.ty>.15&&!(BT&&o.s.bob&&o.ty<1.8)}).sort(function(a,b){return b.ty-a.ty});
+ list.forEach(function(o){var size=(H/o.ty)*o.s.sc,floorY=H/2+H/o.ty/2,bob=o.s.bob?Math.sin(t*.004)*size*.04:0,top=floorY-size-bob,cx=W/2*(1+o.tx/o.ty),x0=Math.floor(cx-size/2),x1=Math.floor(cx+size/2);
+  tmp.clearRect(0,0,W,H);for(var c=Math.max(0,x0);c<=Math.min(W-1,x1);c++){if(o.ty>=zbuf[c])continue;var sw=o.s.img.width;tmp.drawImage(o.s.img,Math.floor((c-x0)/size*sw),0,1,sw,c,top,1,size)}
+  var f=Math.min(1,1.4/(1+fk*o.ty+.09*o.ty*o.ty))*flick;tmp.globalCompositeOperation='source-atop';tmp.fillStyle='rgba(0,0,0,'+Math.max(0,1-f)+')';tmp.fillRect(0,0,W,H);tmp.globalCompositeOperation='source-over';ctx.drawImage(tmpC,0,0)});
+ var vg=ctx.createRadialGradient(W/2,H/2,H*.3,W/2,H/2,H*.95);vg.addColorStop(0,'rgba(0,0,0,0)');vg.addColorStop(1,'rgba(0,0,0,'+(isDark()?.9:.62)+')');ctx.fillStyle=vg;ctx.fillRect(0,0,W,H);
+ if(BT){ctx.fillStyle='rgba(0,0,0,.45)';ctx.fillRect(0,0,W,H)}if(flash>0){ctx.fillStyle='rgba(190,30,20,'+flash*.4+')';ctx.fillRect(0,0,W,H)}}
+function drawMini(){mini.fillStyle='#000';mini.fillRect(0,0,132,132);if(!G.in||!CUR)return;if(isDark()){mini.fillStyle='#555';mini.font='12px sans-serif';mini.fillText('You cannot see the map in the dark',10,66);return}
+ var n=CUR.length,cs=Math.floor(132/n),ox=Math.floor((132-cs*n)/2),seen=G.seen[G.f]||{},d=fd(G.f);
+ for(var y=0;y<n;y++)for(var x=0;x<n;x++){if(!seen[x+','+y])continue;var c=CUR[y][x];mini.fillStyle=c==='#'?'#4a3d30':c==='D'?'#9a6a2c':c==='>'?'#e0b95a':'#2a221a';mini.fillRect(ox+x*cs,ox+y*cs,cs,cs)}
+ d.feats.forEach(function(ft){if(!feAlive(G.f,ft)||!seen[ft.x+','+ft.y])return;mini.fillStyle=(ft.type==='mon'||ft.type==='boss')?'#d04030':ft.type==='chest'?'#e0902a':ft.type==='page'?'#e8e0b0':'#f0d040';mini.fillRect(ox+ft.x*cs+1,ox+ft.y*cs+1,Math.max(2,cs-2),Math.max(2,cs-2))});
+ mini.fillStyle='#4fa8d8';mini.fillRect(ox+cs+1,ox+cs+1,Math.max(2,cs-2),Math.max(2,cs-2));
+ mini.save();mini.translate(ox+px*cs,ox+py*cs);mini.rotate(ang+Math.PI/2);mini.fillStyle='#7fe08a';var s=Math.max(3,cs*.45);mini.beginPath();mini.moveTo(0,-s);mini.lineTo(s*.8,s*.8);mini.lineTo(-s*.8,s*.8);mini.closePath();mini.fill();mini.restore()}
+var last=0;
+function frame(t){var dt=Math.min(.05,(t-last)/1000);last=t;var k=1-Math.exp(-dt*14);
+ px+=(tx-px)*k;py+=(ty-py)*k;ang+=(tang-ang)*k;if(Math.abs(tx-px)<.002)px=tx;if(Math.abs(ty-py)<.002)py=ty;if(Math.abs(tang-ang)<.002)ang=tang;flash=Math.max(0,flash-dt*3);
+ var c=$('dv');if(c&&TAB==='dg'){if(c!==cv){cv=c;ctx=c.getContext('2d')}var m=$('dm');if(m&&m!==mcv){mcv=m;mini=m.getContext('2d')}try{renderScene(t);if(mini)drawMini()}catch(e){}}
+ requestAnimationFrame(frame)}
+
+// ===== Startup =====
+if(G.in){CUR=makeCur(G.f);snapView()}
+if(G.battle&&G.battle.pending){var gb=G.battle;try{initBT()}catch(e){G.battle=null;BT=null}}
+render();post({t:'hello'});arm();if(!G.started)post({t:'hint',s:'Activate the Thread Band first'});if(BT)post({t:'want',open:true});
+if(G.started&&!G.tourDone)showTour();
+if(G.in&&G.ending&&!BT)showEnding(G.ending);
+requestAnimationFrame(frame);
+window.LTP={ingest:ingest,state:function(){return G},ver:VER};
+window.__t={sf:startFloors,nameTry:nameTry,endgo:function(){closeModal();exitDungeon()},modalHtml:function(){return $('mbox').innerHTML},up:upgrade,buy:buy,face:function(t){G.turn=t;turn=t;tang=ang=-Math.PI/2+t*Math.PI/2},put:function(x,y){G.x=x;G.y=y;px=tx=x+.5;py=ty=y+.5},FL:FL,G:function(){return G},cmd:cmd,BT:function(){return BT},enter:enterDungeon,exit:exitDungeon,ef:enterFloor,fd:fd,startBattle:startBattle,fast:function(){window.__fast=1},summary:summary,ingest:ingest,act:act,compact:compact,tail:tailFor,storySay:storySay,sp:storyPush,sbar:sbarHtml,CUR:function(){return CUR}};
+})();
+</script>
+</body>
+</html>
