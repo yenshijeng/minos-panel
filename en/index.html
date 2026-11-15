@@ -259,7 +259,7 @@ function bindFloor(){G.guard[G.f]=true;if(G.bound.indexOf(G.f)<0)G.bound.push(G.
 function healAll(){G.hp=mhp();G.sp=3;G.roster.forEach(function(a){if(a.state!=='dead'){a.hp=allyMax(a);a.state='ok'}})}
 function itemName(k){return ITEM[k]?ITEM[k].n:k}
 function summary(ending){var r=R(),L=['[Exploration Log]'];
- L.push('Route: Floor '+(r.from||1)+' → deepest Floor '+r.deep+' | '+(G.steps-r.steps0)+' steps | rested at springs '+r.rests+' time(s)');
+ L.push('Route: Floor '+(r.from||1)+' → deepest Floor '+r.deep+' | '+(G.steps-r.steps0)+' steps | rested at springs '+r.rests+(r.rests===1?' time':' times'));
  var k=Object.keys(r.kills).map(function(n){return n+' x'+r.kills[n]}).join(', ');L.push('Defeated: '+(k||'none'));
  if(r.boss.length)L.push('Guardian: '+r.boss.join(', ')+' (defeated)');
  if(r.bound.length)L.push('Bound floors: '+r.bound.join(', '));
